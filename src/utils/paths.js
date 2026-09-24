@@ -7,6 +7,7 @@
  * is meant to address.
  */
 
+import { readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +26,11 @@ const SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 /** Root of the installed cg-web-skills package (where package.json lives). */
 export function getPackageRoot() {
   return PACKAGE_ROOT;
+}
+
+/** Version of the installed cg-web-skills package. */
+export function getPackageVersion() {
+  return JSON.parse(readFileSync(path.join(PACKAGE_ROOT, 'package.json'), 'utf8')).version;
 }
 
 /** Root of the user's project: the directory the CLI was run from. */
