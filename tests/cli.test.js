@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -158,6 +158,20 @@ describe('CLI startup', () => {
     const { stdout } = await runCli(['--help']);
     assert.match(stdout, /^CG Web Skills/);
     assert.ok(!stdout.includes(BANNER.split('\n')[0]), 'banner should not be printed');
+  });
+
+  it('exits quietly when stdout is closed early, as with `| head`', async () => {
+    const child = spawn(process.execPath, [CLI, 'list'], {
+      cwd: await tempDir('project'),
+      env: { ...process.env, NO_COLOR: '1' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    child.stdout.destroy();
+    let stderr = '';
+    child.stderr.setEncoding('utf8').on('data', (chunk) => (stderr += chunk));
+    const code = await new Promise((resolve) => child.on('close', resolve));
+    assert.equal(stderr, '');
+    assert.equal(code, ExitCode.SUCCESS);
   });
 
   it('rejects an unknown command with exit code 2', async () => {
