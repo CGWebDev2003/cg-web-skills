@@ -8,6 +8,7 @@ This directory is the registry for every CG Web Skill. It is shared by the Claud
 
 Available skills:
 
+- [`cg-web-designer`](cg-web-designer/SKILL.md): end-to-end web design process, from intake and strategy to QA and launch
 - [`cg-web-animate`](cg-web-animate/SKILL.md): premium web animation and motion systems
 
 ## Structure

@@ -169,6 +169,7 @@ describe('list', () => {
     assert.equal(code, ExitCode.SUCCESS);
     assert.match(stdout, /Available skills:/);
     assert.match(stdout, /cg-web-animate\s+Expert skill for designing/);
+    assert.match(stdout, /cg-web-designer\s+Lead web designer, UX strategist/);
   });
 
   it('reports gracefully when no skills are available', async () => {

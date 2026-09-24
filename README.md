@@ -4,7 +4,7 @@ A professional Claude skillset for designing, building, and optimizing modern, h
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> **Status:** early release. The infrastructure (Claude Plugin, skills registry, CLI, npm distribution) is in place, and the first skill, `cg-web-animate`, is available. More skills will be added progressively.
+> **Status:** early release. The infrastructure (Claude Plugin, skills registry, CLI, npm distribution) is in place, and the first skills, `cg-web-designer` and `cg-web-animate`, are available. More skills will be added progressively.
 
 ## What is CG Web Skills?
 
@@ -118,9 +118,11 @@ See [`skills/README.md`](skills/README.md) for the conventions.
 
 | Skill | Description |
 | ----- | ----------- |
+| [`cg-web-designer`](skills/cg-web-designer/SKILL.md) | End-to-end web design lead: intake, discovery, strategy, content, information architecture, wireframes, design direction, design system, accessibility, performance, SEO, QA, and launch, with an audit against generic AI-generated design defaults. |
 | [`cg-web-animate`](skills/cg-web-animate/SKILL.md) | Premium web motion: designing, implementing, reviewing, and optimizing animations and motion systems with purposeful motion, natural easing, accessibility, and performance. |
 
 ```bash
+npx cg-web-skills install cg-web-designer
 npx cg-web-skills install cg-web-animate
 ```
 
@@ -142,7 +144,7 @@ npm pack --dry-run
 
 ## Status
 
-The infrastructure is complete and the first skill, `cg-web-animate`, is included. Further skills will be added progressively, and each one will appear in the CLI and the Claude Plugin automatically.
+The infrastructure is complete and the first skills, `cg-web-designer` and `cg-web-animate`, are included. Further skills will be added progressively, and each one will appear in the CLI and the Claude Plugin automatically.
 
 CG Web Skills is an independent open-source project. It is not affiliated with Anthropic and is not listed in any official Claude marketplace.
 
