@@ -131,7 +131,16 @@ describe('CLI startup', () => {
     it(`shows help with ${flag}`, async () => {
       const { code, stdout } = await runCli([flag]);
       assert.equal(code, ExitCode.SUCCESS);
-      for (const text of ['Usage:', 'Commands:', 'Options:', 'init', 'list', 'install <skill>', '--version']) {
+      for (const text of [
+        'Usage:',
+        'Commands:',
+        'Options:',
+        'init',
+        'list',
+        'install <skill>',
+        '--version',
+        'https://github.com/CGWebDev2003/cg-web-skills',
+      ]) {
         assert.ok(stdout.includes(text), `help should mention ${text}`);
       }
     });

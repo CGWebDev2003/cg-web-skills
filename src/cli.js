@@ -37,6 +37,7 @@ const OPTIONS = {
 };
 
 const TITLE = 'CG Web Skills';
+const REPOSITORY_URL = 'https://github.com/CGWebDev2003/cg-web-skills';
 
 const HELP = `A professional Claude skillset for designing, building, and
 optimizing modern, high-quality websites.
@@ -58,7 +59,10 @@ Options:
 Examples:
   npx cg-web-skills init
   npx cg-web-skills list
-  npx cg-web-skills install <skill>`;
+  npx cg-web-skills install <skill>
+
+Documentation, issues, and source:
+  ${REPOSITORY_URL}`;
 
 function readVersion() {
   const manifest = JSON.parse(readFileSync(path.join(getPackageRoot(), 'package.json'), 'utf8'));
