@@ -4,6 +4,8 @@ Professional web design and web motion expertise for Claude, packaged as install
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+**Website:** [cg-web-skills-website.vercel.app](https://cg-web-skills-website.vercel.app/en)
+
 CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, and how to add motion that helps rather than distracts. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
