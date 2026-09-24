@@ -128,6 +128,15 @@ async function main(argv) {
   });
 }
 
+// A reader that stops early (for example `cg-web-skills list | head`) closes
+// the pipe. That is not an error, so exit quietly instead of crashing.
+for (const stream of [process.stdout, process.stderr]) {
+  stream.on('error', (err) => {
+    if (err.code === 'EPIPE') process.exit(ExitCode.SUCCESS);
+    throw err;
+  });
+}
+
 main(process.argv.slice(2)).then(
   (code) => {
     process.exitCode = code;

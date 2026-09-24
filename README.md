@@ -290,6 +290,14 @@ node src/cli.js --help
 npm pack --dry-run   # Inspect the package as it would be published
 ```
 
+### Releasing
+
+1. Bump the version in `package.json`, `package-lock.json`, and `.claude-plugin/plugin.json` (a test checks that they match).
+2. Merge the change into `main`.
+3. Publish a GitHub release whose tag is the version prefixed with `v`, for example `v1.1.0`.
+
+The [publish workflow](.github/workflows/publish.yml) then runs the tests and publishes the package to npm using [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repository. `npm publish` also runs the tests locally before uploading.
+
 CG Web Skills is an independent open-source project. It is not affiliated with Anthropic and is not listed in any official Claude marketplace.
 
 ## License

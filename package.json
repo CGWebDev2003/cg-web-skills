@@ -30,7 +30,8 @@
     "cg-web-skills": "src/cli.js"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npm test"
   },
   "engines": {
     "node": ">=20"
