@@ -6,7 +6,9 @@ This directory is the registry for every CG Web Skill. It is shared by the Claud
 - **CLI:** `cg-web-skills list` and `cg-web-skills install <skill>` read from here.
 - **npm:** this directory ships in the published package.
 
-No skills have been added yet.
+Available skills:
+
+- [`cg-web-animate`](cg-web-animate/SKILL.md): premium web animation and motion systems
 
 ## Structure
 
