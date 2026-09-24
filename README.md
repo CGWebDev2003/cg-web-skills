@@ -2,13 +2,13 @@
 
 # CG Web Skills
 
-Professional web design and web motion expertise for Claude, packaged as installable Agent Skills.
+Professional web design, motion, SEO, GEO, and accessibility expertise for Claude, packaged as installable Agent Skills.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Website:** [cg-web-skills-website.vercel.app](https://cg-web-skills-website.vercel.app/en)
 
-CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, and how to add motion that helps rather than distracts. You install the skills once, and Claude uses them automatically whenever you work on a website.
+CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, and how to make it accessible to everyone. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
 npx cg-web-skills install --all
@@ -24,6 +24,9 @@ That's it: this installs the complete skillset into your project. Open Claude Co
 - [The skillset](#the-skillset)
   - [`cg-web-designer`](#cg-web-designer)
   - [`cg-web-animate`](#cg-web-animate)
+  - [`cg-web-seo`](#cg-web-seo)
+  - [`cg-web-geo`](#cg-web-geo)
+  - [`cg-web-accessibility`](#cg-web-accessibility)
   - [How the skills work together](#how-the-skills-work-together)
 - [Quick start](#quick-start)
 - [Using the skills in Claude](#using-the-skills-in-claude)
@@ -48,6 +51,11 @@ In practice, that means you don't have to paste long prompts about accessibility
 | ----- | ---- | ---------- |
 | [`cg-web-designer`](skills/cg-web-designer/SKILL.md) | Lead web designer, UX and content strategist, frontend quality lead | Planning, designing, building, reviewing, and launching websites and landing pages |
 | [`cg-web-animate`](skills/cg-web-animate/SKILL.md) | Senior design engineer and motion designer | Designing, implementing, reviewing, and optimizing animations and motion systems |
+| [`cg-web-seo`](skills/cg-web-seo/SKILL.md) | SEO specialist | Technical SEO, search intent, information architecture, on-page, structured data, Core Web Vitals, audits, and relaunches |
+| [`cg-web-geo`](skills/cg-web-geo/SKILL.md) | Generative Engine Optimization specialist | Making websites findable, understandable, and citable in AI search (Google AI Overviews/AI Mode, Copilot, ChatGPT Search, Perplexity) |
+| [`cg-web-accessibility`](skills/cg-web-accessibility/SKILL.md) | Accessibility engineer | Fixing WCAG 2.2 AA barriers in the codebase and building a native, site-wide accessibility toolbar |
+
+The three newer skills (`cg-web-seo`, `cg-web-geo`, `cg-web-accessibility`) are written in German. Claude applies them just as well to projects in any language.
 
 ### `cg-web-designer`
 
@@ -100,11 +108,72 @@ The motion skill. Its core rule: **every animation must have a reason to exist.*
 - _"Build a page transition between the project list and project detail in Next.js."_
 - _"Make these buttons feel more responsive."_
 
+### `cg-web-seo`
+
+The search skill. It treats SEO as a system instead of a layer of keywords: **Discovery → Crawl → Render → Index → Relevance → Quality/Trust → Search Appearance → Click → UX/Conversion → Measurement → Iteration.**
+
+**What Claude does with it**
+
+- **Starts with the business and search intent.** Claude builds a topic map before a keyword map, gives every primary intent one clear target page, and avoids keyword cannibalization and thin "SEO pages".
+- **Covers technical SEO end to end:** status codes, redirects, `robots.txt` vs. `noindex`, sitemaps, canonicals, `hreflang`, JavaScript rendering, mobile, and security.
+- **Handles on-page and content quality:** titles, meta descriptions, headings, internal linking and anchor text, images, E-E-A-T as real trust signals, and a process against AI slop.
+- **Uses structured data correctly:** JSON-LD as a connected `@graph` that matches the visible content, never as a ranking hack.
+- **Knows Core Web Vitals** (LCP, INP, CLS), local and international SEO, migrations and relaunches, faceted navigation, pagination, and a Next.js SEO baseline.
+- **Audits with priorities** (P0 to P3), acceptance criteria, and Search Console as a diagnostic tool.
+- **Rejects SEO myths.** No keyword density, no word-count rules, no guaranteed rankings. Claims are labeled as documented guideline, best practice, heuristic, or hypothesis.
+
+**Example prompts**
+
+- _"Run an SEO audit of this Next.js site and prioritize the fixes."_
+- _"We're relaunching. Plan the redirects and make sure we don't lose rankings."_
+- _"Add structured data for our organization and services."_
+- _"Build a topic map and page structure for our service pages."_
+
+### `cg-web-geo`
+
+The Generative Engine Optimization skill. Its core rule: **GEO is not a replacement for SEO.** Claude optimizes the whole web presence so that search and answer systems can find, understand, verify, and cite it, without chasing hacks.
+
+**What Claude does with it**
+
+- **Evaluates the full chain:** discoverability, indexability, retrievability, extractability, and evidence, then fixes the foundation before producing content (_Access → Index → Understand → Retrieve → Cite → Convert_).
+- **Builds entity clarity:** who the organization is, what it offers, for whom, where, and since when, kept consistent on the website and external profiles.
+- **Writes citation-ready content:** concrete, self-contained claims with numbers, dates, and sources, and a real _reason to cite_ (original data, experience, local expertise).
+- **Configures AI crawler access deliberately,** for example `OAI-SearchBot` vs. `GPTBot`, instead of blocking or allowing every AI bot.
+- **Treats `llms.txt`, schema, and "chunking" soberly.** None of them is a magic GEO switch, and Claude says so.
+- **Measures instead of guessing:** Search Console, Bing AI Performance, repeated multi-platform AI query tests, and an experiment protocol, because AI answers are stochastic.
+- **Avoids manipulation:** no hidden prompt injection, fake freshness, artificial mentions, or programmatic city spam.
+
+**Example prompts**
+
+- _"Why doesn't ChatGPT mention our company? Run a GEO audit."_
+- _"Make our service pages easier for AI search to cite."_
+- _"Check our robots.txt for AI crawlers. We want to appear in ChatGPT Search."_
+- _"Set up a test plan to track our visibility in AI Overviews, Copilot, and Perplexity."_
+
+### `cg-web-accessibility`
+
+The accessibility skill. It works on two levels that always belong together: **accessibility by source, plus accessibility preferences on top.**
+
+**What Claude does with it**
+
+- **Fixes real barriers in the code:** semantic HTML, landmarks, headings, alt text, forms and error messages, keyboard operation, focus management, contrast, reflow, media, and status messages, audited against the WCAG 2.2 A/AA success criteria.
+- **Builds a native accessibility toolbar:** a site-wide button with an accessible dialog for larger text, text spacing, line height, contrast modes, link highlighting, reduced motion, hidden images, a reading-friendly font, a larger cursor, focus highlighting, a page structure navigator, optional read-aloud, and a reset. Everything is stored locally, without external services or tracking.
+- **Follows your architecture:** a central provider near the app shell, SSR-safe browser APIs, and the project's own styling system (React/Next.js, Vue/Nuxt, SvelteKit, or plain HTML/JS).
+- **Verifies its work:** lint, typecheck, build, automated scans such as axe, keyboard and screen reader passes, mobile, and 200 % text size.
+- **Stays honest about compliance.** The toolbar never replaces accessible source code, and Claude never claims that a widget makes a site WCAG, EN 301 549, or BFSG compliant.
+
+**Example prompts**
+
+- _"Make our website accessible and add an accessibility button."_
+- _"Check this site against WCAG 2.2 AA and fix what you find."_
+- _"Our online shop falls under the BFSG. What do we need to fix?"_
+- _"The mobile menu isn't usable with a keyboard. Fix it."_
+
 ### How the skills work together
 
-The two skills are independent. Install one or both.
+The skills are independent. Install only the ones you need, or all of them.
 
-When both are installed, `cg-web-designer` leads the project and treats motion as part of the design direction, while `cg-web-animate` supplies the detailed motion craft when animations are designed or built. You don't need to call them explicitly; Claude picks whichever fits the task.
+When several are installed, `cg-web-designer` leads the project and hands the specialist work to the others: `cg-web-animate` supplies the motion craft, `cg-web-seo` the search foundation, `cg-web-geo` the AI search perspective on top of it, and `cg-web-accessibility` the WCAG remediation and the accessibility toolbar. You don't need to call them explicitly; Claude picks whichever fits the task.
 
 ---
 
@@ -135,6 +204,7 @@ When both are installed, `cg-web-designer` leads the project and treats motion a
    ```bash
    npx cg-web-skills install cg-web-designer
    npx cg-web-skills install cg-web-designer cg-web-animate
+   npx cg-web-skills install cg-web-seo cg-web-geo cg-web-accessibility
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -149,9 +219,9 @@ npx cg-web-skills install --all --global
 
 ## Using the skills in Claude
 
-**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, or a scroll animation is enough.
+**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, a scroll animation, an SEO audit, AI search visibility, or an accessibility fix is enough.
 
-**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer` or `/cg-web-animate` to invoke one directly, or simply mention the skill by name in your prompt.
+**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer`, `/cg-web-animate`, `/cg-web-seo`, `/cg-web-geo`, or `/cg-web-accessibility` to invoke one directly, or simply mention the skill by name in your prompt.
 
 **Checking that it works.** Ask Claude _"Which skills do you have available?"_ in the project. The installed CG Web Skills should be listed.
 
@@ -208,18 +278,27 @@ With `--global`, the personal Claude directory is `$CLAUDE_CONFIG_DIR` when that
 $ npx cg-web-skills list
 Available skills:
 
-  cg-web-animate   Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
-  cg-web-designer  Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
+  cg-web-accessibility  Implementiert und remediatiert Website-Barrierefreiheit direkt im bestehenden Codebase. Erstellt ei…
+  cg-web-animate        Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
+  cg-web-designer       Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
+  cg-web-geo            Vollumfänglicher Claude Skill für Generative Engine Optimization (GEO) von Websites. Analysiert und…
+  cg-web-seo            Vollumfänglicher SEO-Skill für professionelle Websites. Verwende ihn bei Website-Planung, Relaunche…
 
 Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
 
 $ npx cg-web-skills install --all
+✔ Installed cg-web-accessibility to .claude/skills/cg-web-accessibility
 ✔ Installed cg-web-animate to .claude/skills/cg-web-animate
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
+✔ Installed cg-web-geo to .claude/skills/cg-web-geo
+✔ Installed cg-web-seo to .claude/skills/cg-web-seo
 
 $ npx cg-web-skills install --all
+- Skipped cg-web-accessibility: already installed at .claude/skills/cg-web-accessibility
 - Skipped cg-web-animate: already installed at .claude/skills/cg-web-animate
 - Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
+- Skipped cg-web-geo: already installed at .claude/skills/cg-web-geo
+- Skipped cg-web-seo: already installed at .claude/skills/cg-web-seo
 
 $ npx cg-web-skills@latest update --all
 ✔ Updated cg-web-animate (1.1.0 → 1.2.0)
