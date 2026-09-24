@@ -141,6 +141,7 @@ describe('CLI startup', () => {
         'install <skill...>',
         '--all',
         '--version',
+        'https://cg-web-skills-website.vercel.app/en',
         'https://github.com/CGWebDev2003/cg-web-skills',
       ]) {
         assert.ok(stdout.includes(text), `help should mention ${text}`);

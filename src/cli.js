@@ -40,6 +40,7 @@ const OPTIONS = {
 };
 
 const TITLE = 'CG Web Skills';
+const WEBSITE_URL = 'https://cg-web-skills-website.vercel.app/en';
 const REPOSITORY_URL = 'https://github.com/CGWebDev2003/cg-web-skills';
 
 const HELP = `A professional Claude skillset for designing, building, and
@@ -70,6 +71,9 @@ Examples:
   npx cg-web-skills install --all
   npx cg-web-skills install cg-web-designer cg-web-animate
   npx cg-web-skills@latest update --all
+
+Website:
+  ${WEBSITE_URL}
 
 Documentation, issues, and source:
   ${REPOSITORY_URL}`;
