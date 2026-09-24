@@ -1,12 +1,12 @@
 {
   "name": "cg-web-skills",
-  "version": "1.1.2",
-  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites.",
+  "version": "1.2.0",
+  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites: design, motion, SEO, GEO, and accessibility.",
   "author": {
     "name": "Colin Grahm"
   },
   "homepage": "https://cg-web-skills-website.vercel.app/en",
   "repository": "https://github.com/CGWebDev2003/cg-web-skills",
   "license": "MIT",
-  "keywords": ["web-design", "frontend", "ux", "ui-design", "accessibility", "seo", "performance"]
+  "keywords": ["web-design", "frontend", "ux", "ui-design", "accessibility", "wcag", "seo", "geo", "ai-search", "performance"]
 }
