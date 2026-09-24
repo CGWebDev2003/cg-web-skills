@@ -13,6 +13,8 @@ Available skills:
 - [`cg-web-seo`](cg-web-seo/SKILL.md): technical SEO, search intent, content, structured data, and audits
 - [`cg-web-geo`](cg-web-geo/SKILL.md): Generative Engine Optimization for AI search and answer systems
 - [`cg-web-accessibility`](cg-web-accessibility/SKILL.md): WCAG 2.2 AA remediation and a native accessibility toolbar
+- [`cg-web-deslopifier`](cg-web-deslopifier/SKILL.md): audits and redesigns AI-generated or template-driven websites for specificity and authorship
+- [`cg-web-lighthouse-optimizer`](cg-web-lighthouse-optimizer/SKILL.md): turns Lighthouse JSON reports for mobile and desktop into fixes in the code
 
 ## Structure
 

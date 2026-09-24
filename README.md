@@ -2,13 +2,13 @@
 
 # CG Web Skills
 
-Professional web design, motion, SEO, GEO, and accessibility expertise for Claude, packaged as installable Agent Skills.
+Professional web design, motion, SEO, GEO, accessibility, and performance expertise for Claude, packaged as installable Agent Skills.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Website:** [cg-web-skills-website.vercel.app](https://cg-web-skills-website.vercel.app/en)
 
-CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, and how to make it accessible to everyone. You install the skills once, and Claude uses them automatically whenever you work on a website.
+CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, how to make it accessible to everyone, and how to make it fast. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
 npx cg-web-skills@latest install --all
@@ -27,6 +27,8 @@ That's it: this installs the complete skillset into your project. Open Claude Co
   - [`cg-web-seo`](#cg-web-seo)
   - [`cg-web-geo`](#cg-web-geo)
   - [`cg-web-accessibility`](#cg-web-accessibility)
+  - [`cg-web-deslopifier`](#cg-web-deslopifier)
+  - [`cg-web-lighthouse-optimizer`](#cg-web-lighthouse-optimizer)
   - [How the skills work together](#how-the-skills-work-together)
 - [Quick start](#quick-start)
 - [Using the skills in Claude](#using-the-skills-in-claude)
@@ -54,8 +56,10 @@ In practice, that means you don't have to paste long prompts about accessibility
 | [`cg-web-seo`](skills/cg-web-seo/SKILL.md) | SEO specialist | Technical SEO, search intent, information architecture, on-page, structured data, Core Web Vitals, audits, and relaunches |
 | [`cg-web-geo`](skills/cg-web-geo/SKILL.md) | Generative Engine Optimization specialist | Making websites findable, understandable, and citable in AI search (Google AI Overviews/AI Mode, Copilot, ChatGPT Search, Perplexity) |
 | [`cg-web-accessibility`](skills/cg-web-accessibility/SKILL.md) | Accessibility engineer | Fixing WCAG 2.2 AA barriers in the codebase and building a native, site-wide accessibility toolbar |
+| [`cg-web-deslopifier`](skills/cg-web-deslopifier/SKILL.md) | Design director for existing sites | Auditing and redesigning AI-generated, vibe-coded, or template-driven websites so they look specific and intentionally designed |
+| [`cg-web-lighthouse-optimizer`](skills/cg-web-lighthouse-optimizer/SKILL.md) | Web performance engineer | Turning Lighthouse JSON reports (mobile and desktop) into real fixes in the code, without score gaming |
 
-The three newer skills (`cg-web-seo`, `cg-web-geo`, `cg-web-accessibility`) are written in German. Claude applies them just as well to projects in any language.
+`cg-web-seo`, `cg-web-geo`, `cg-web-accessibility`, and `cg-web-lighthouse-optimizer` are written in German. Claude applies them just as well to projects in any language.
 
 ### `cg-web-designer`
 
@@ -169,11 +173,53 @@ The accessibility skill. It works on two levels that always belong together: **a
 - _"Our online shop falls under the BFSG. What do we need to fix?"_
 - _"The mobile menu isn't usable with a keyboard. Fix it."_
 
+### `cg-web-deslopifier`
+
+The anti-slop skill for websites that already exist. Its core rule: **replace defaults with decisions.** Claude treats "AI slop" as a design-convergence problem, not as proof that AI was involved, and makes the site look like the result of clear human decisions instead of swapping one template for another.
+
+**What Claude does with it**
+
+- **Inspects before editing.** Claude reads the project, its brand assets, tokens, components, and content first, and preserves the logo, approved colors, proprietary imagery, information architecture, and working integrations.
+- **Runs an anti-slop audit on the rendered site,** at 1440, 1024, 768, and 390 px: generic gradients and glows, the "cardocalypse", the default centered hero recipe, repetitive grids, one-font typography, stock imagery, interchangeable copy ("elevate your business"), and motion without a job.
+- **Sets a design direction** with 3–5 concrete brand traits, 1–3 visual signatures grounded in the brand, a small token system, and a clear job for every section.
+- **Fixes the highest-leverage problems first:** information architecture, hero, typography, content specificity, and imagery before shadows and radii.
+- **Cleans up the code as well:** duplicated markup, dead components, placeholder content, unnecessary client components, and dependencies used for trivial effects.
+- **Validates with a squint test, a cross-site test, and a specificity test,** and keeps accessibility and performance from regressing.
+- **Never fabricates realism.** No invented testimonials, customer logos, numbers, or case studies, and no claim that a site is "definitively AI-generated".
+
+**Example prompts**
+
+- _"This site was vibe-coded and looks like every other AI landing page. Deslopify it."_
+- _"Remove the AI look from our homepage without changing the brand."_
+- _"Audit our landing page for generic AI design patterns and fix the worst ones."_
+- _"Make this Claude Code website look custom."_
+
+### `cg-web-lighthouse-optimizer`
+
+The performance skill. You give Claude Lighthouse results as JSON, and it fixes the causes in the code. Its core rule: **Lighthouse is a diagnostic loop, not a score to game:** _measure → identify → hypothesize → change → validate → measure again._
+
+**What Claude does with it**
+
+- **Reads any Lighthouse JSON:** a single report, a mobile/desktop pair, an array, a PageSpeed Insights wrapper, or JSON pasted as text. It normalizes them and checks for runtime errors, warnings, and mismatched versions or URLs.
+- **Keeps mobile and desktop apart.** Each is analyzed on its own, with a side-by-side matrix of metrics and categories.
+- **Is version-aware.** It reads the Lighthouse version and the report's own audit weights, and maps older audit IDs to the Performance Insights introduced with Lighthouse 13.
+- **Prioritizes by real impact:** LCP, TBT, and CLS before low-impact tweaks, weighted by savings, affected devices, root-cause reach, and implementation risk.
+- **Traces each finding to the code:** the actual LCP element, the bundle behind the long tasks, the unsized image behind the layout shift, the font, the third-party script, the cache header. Then it applies the smallest robust fix, with framework-native tools such as `next/image`, `next/font`, and `next/script`.
+- **Covers all categories:** Performance, Accessibility, Best Practices, SEO, and, where the report includes it, Agentic Browsing.
+- **Refuses score gaming.** No hidden content, no lazy-loaded LCP images, no blanket preloads, no removed features, and no claimed improvement without a new Lighthouse run.
+
+**Example prompts**
+
+- _"Here are the Lighthouse reports for mobile and desktop. Fix what's slowing the site down."_
+- _"Our mobile LCP is 4.8 s. Find out why and fix it."_
+- _"Analyze this PageSpeed Insights JSON and improve the site in the repo."_
+- _"The new Lighthouse run is worse than last week. Compare the reports and fix the regression."_
+
 ### How the skills work together
 
 The skills are independent. Install only the ones you need, or all of them.
 
-When several are installed, `cg-web-designer` leads the project and hands the specialist work to the others: `cg-web-animate` supplies the motion craft, `cg-web-seo` the search foundation, `cg-web-geo` the AI search perspective on top of it, and `cg-web-accessibility` the WCAG remediation and the accessibility toolbar. You don't need to call them explicitly; Claude picks whichever fits the task.
+When several are installed, `cg-web-designer` leads the project and hands the specialist work to the others: `cg-web-animate` supplies the motion craft, `cg-web-seo` the search foundation, `cg-web-geo` the AI search perspective on top of it, and `cg-web-accessibility` the WCAG remediation and the accessibility toolbar. For sites that already exist, `cg-web-deslopifier` takes generic, AI-looking design back to specific, intentional design, and `cg-web-lighthouse-optimizer` turns Lighthouse reports into performance fixes. You don't need to call them explicitly; Claude picks whichever fits the task.
 
 ---
 
@@ -205,6 +251,7 @@ When several are installed, `cg-web-designer` leads the project and hands the sp
    npx cg-web-skills@latest install cg-web-designer
    npx cg-web-skills@latest install cg-web-designer cg-web-animate
    npx cg-web-skills@latest install cg-web-seo cg-web-geo cg-web-accessibility
+   npx cg-web-skills@latest install cg-web-deslopifier cg-web-lighthouse-optimizer
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -219,9 +266,9 @@ npx cg-web-skills@latest install --all --global
 
 ## Using the skills in Claude
 
-**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, a scroll animation, an SEO audit, AI search visibility, or an accessibility fix is enough.
+**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, a scroll animation, an SEO audit, AI search visibility, an accessibility fix, removing the "AI look" from a site, or a Lighthouse report to fix is enough.
 
-**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer`, `/cg-web-animate`, `/cg-web-seo`, `/cg-web-geo`, or `/cg-web-accessibility` to invoke one directly, or simply mention the skill by name in your prompt.
+**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer`, `/cg-web-animate`, `/cg-web-seo`, `/cg-web-geo`, `/cg-web-accessibility`, `/cg-web-deslopifier`, or `/cg-web-lighthouse-optimizer` to invoke one directly, or simply mention the skill by name in your prompt.
 
 **Checking that it works.** Ask Claude _"Which skills do you have available?"_ in the project. The installed CG Web Skills should be listed.
 
@@ -278,11 +325,13 @@ With `--global`, the personal Claude directory is `$CLAUDE_CONFIG_DIR` when that
 $ npx cg-web-skills@latest list
 Available skills:
 
-  cg-web-accessibility  Implementiert und remediatiert Website-Barrierefreiheit direkt im bestehenden Codebase. Erstellt ei…
-  cg-web-animate        Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
-  cg-web-designer       Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
-  cg-web-geo            Vollumfänglicher Claude Skill für Generative Engine Optimization (GEO) von Websites. Analysiert und…
-  cg-web-seo            Vollumfänglicher SEO-Skill für professionelle Websites. Verwende ihn bei Website-Planung, Relaunche…
+  cg-web-accessibility         Implementiert und remediatiert Website-Barrierefreiheit direkt im bestehenden Codebase. Erstellt ei…
+  cg-web-animate               Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
+  cg-web-designer              Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
+  cg-web-deslopifier           This skill should be used when the user asks to "remove AI slop", "deslopify a website", "make an A…
+  cg-web-geo                   Vollumfänglicher Claude Skill für Generative Engine Optimization (GEO) von Websites. Analysiert und…
+  cg-web-lighthouse-optimizer  Analysiert Lighthouse-JSON-Ergebnisse für Mobile und Desktop, normalisiert versionsabhängige Audit-…
+  cg-web-seo                   Vollumfänglicher SEO-Skill für professionelle Websites. Verwende ihn bei Website-Planung, Relaunche…
 
 Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
 
@@ -290,14 +339,18 @@ $ npx cg-web-skills@latest install --all
 ✔ Installed cg-web-accessibility to .claude/skills/cg-web-accessibility
 ✔ Installed cg-web-animate to .claude/skills/cg-web-animate
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
+✔ Installed cg-web-deslopifier to .claude/skills/cg-web-deslopifier
 ✔ Installed cg-web-geo to .claude/skills/cg-web-geo
+✔ Installed cg-web-lighthouse-optimizer to .claude/skills/cg-web-lighthouse-optimizer
 ✔ Installed cg-web-seo to .claude/skills/cg-web-seo
 
 $ npx cg-web-skills@latest install --all
 - Skipped cg-web-accessibility: already installed at .claude/skills/cg-web-accessibility
 - Skipped cg-web-animate: already installed at .claude/skills/cg-web-animate
 - Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
+- Skipped cg-web-deslopifier: already installed at .claude/skills/cg-web-deslopifier
 - Skipped cg-web-geo: already installed at .claude/skills/cg-web-geo
+- Skipped cg-web-lighthouse-optimizer: already installed at .claude/skills/cg-web-lighthouse-optimizer
 - Skipped cg-web-seo: already installed at .claude/skills/cg-web-seo
 
 $ npx cg-web-skills@latest update --all
