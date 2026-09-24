@@ -1,0 +1,44 @@
+# Publishes the package to npm when a GitHub release is published.
+#
+# Authentication uses npm trusted publishing (OIDC), so no npm token is
+# stored in the repository. Configure it once on npmjs.com under
+# cg-web-skills → Settings → Trusted Publisher:
+#   Publisher:         GitHub Actions
+#   Organization/user: CGWebDev2003
+#   Repository:        cg-web-skills
+#   Workflow filename: publish.yml
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing requires npm 11.5.1 or later.
+      - run: npm install --global npm@latest
+
+      - name: Check that the release tag matches the package version
+        run: |
+          expected="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "::error::Release tag $GITHUB_REF_NAME does not match package version $expected"
+            exit 1
+          fi
+
+      # `prepublishOnly` runs the test suite before anything is uploaded.
+      - run: npm publish
