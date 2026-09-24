@@ -10,6 +10,7 @@ import * as initCommand from '../src/commands/init.js';
 import * as installCommand from '../src/commands/install.js';
 import { discoverSkills, parseFrontmatter } from '../src/commands/list.js';
 import * as listCommand from '../src/commands/list.js';
+import { BANNER, BANNER_WIDTH, canShowBanner } from '../src/utils/banner.js';
 import { ExitCode } from '../src/utils/exit-codes.js';
 import {
   getClaudeDirectory,
@@ -130,7 +131,16 @@ describe('CLI startup', () => {
     it(`shows help with ${flag}`, async () => {
       const { code, stdout } = await runCli([flag]);
       assert.equal(code, ExitCode.SUCCESS);
-      for (const text of ['Usage:', 'Commands:', 'Options:', 'init', 'list', 'install <skill>', '--version']) {
+      for (const text of [
+        'Usage:',
+        'Commands:',
+        'Options:',
+        'init',
+        'list',
+        'install <skill>',
+        '--version',
+        'https://github.com/CGWebDev2003/cg-web-skills',
+      ]) {
         assert.ok(stdout.includes(text), `help should mention ${text}`);
       }
     });
@@ -143,6 +153,12 @@ describe('CLI startup', () => {
       assert.equal(stdout.trim(), version);
     });
   }
+
+  it('prints the plain title instead of the banner when not a terminal', async () => {
+    const { stdout } = await runCli(['--help']);
+    assert.match(stdout, /^CG Web Skills/);
+    assert.ok(!stdout.includes(BANNER.split('\n')[0]), 'banner should not be printed');
+  });
 
   it('rejects an unknown command with exit code 2', async () => {
     const { code, stdout, stderr } = await runCli(['deploy']);
@@ -466,5 +482,20 @@ describe('path handling', () => {
     assert.equal(isPathInside(parent, path.join(parent, 'child', '..', '..')), false);
     assert.equal(isPathInside(parent, path.parse(parent).root), false);
     assert.equal(isPathInside(parent, path.join(sandbox, 'parent-sibling')), false);
+  });
+});
+
+describe('banner', () => {
+  it('is shown only on a terminal wide enough to fit it', () => {
+    assert.equal(canShowBanner({ isTTY: true, columns: BANNER_WIDTH }), true);
+    assert.equal(canShowBanner({ isTTY: true, columns: BANNER_WIDTH - 1 }), false);
+    assert.equal(canShowBanner({ isTTY: false, columns: 200 }), false);
+    assert.equal(canShowBanner({ isTTY: true }), false);
+  });
+
+  it('has no line wider than BANNER_WIDTH', () => {
+    for (const line of BANNER.split('\n')) {
+      assert.ok([...line].length <= BANNER_WIDTH);
+    }
   });
 });
