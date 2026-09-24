@@ -6,31 +6,34 @@
  *   CLI
  *    ├── init
  *    ├── list
- *    └── install
+ *    ├── install
+ *    └── update
  *
  * Each command module exports `run(args, context)` and resolves to an exit
  * code. This file only parses arguments and dispatches.
  */
 
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { parseArgs } from 'node:util';
 
 import * as init from './commands/init.js';
 import * as install from './commands/install.js';
 import * as list from './commands/list.js';
+import * as update from './commands/update.js';
 import { BANNER, canShowBanner } from './utils/banner.js';
 import { ExitCode } from './utils/exit-codes.js';
 import * as logger from './utils/logger.js';
-import { getPackageRoot, getSkillsDirectory } from './utils/paths.js';
+import { getPackageVersion, getSkillsDirectory } from './utils/paths.js';
 
 const COMMANDS = {
-  init: { module: init, supportsGlobal: true },
-  list: { module: list, supportsGlobal: false },
-  install: { module: install, supportsGlobal: true },
+  init: { module: init, options: ['global'] },
+  list: { module: list, options: [] },
+  install: { module: install, options: ['global', 'all'] },
+  update: { module: update, options: ['global', 'all', 'force'] },
 };
 
 const OPTIONS = {
+  all: { type: 'boolean', short: 'a' },
+  force: { type: 'boolean', short: 'f' },
   global: { type: 'boolean', short: 'g' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
@@ -48,26 +51,28 @@ Usage:
 Commands:
   init                 Initialize CG Web Skills in the current project
   list                 List available skills
-  install <skill>      Install a skill into the current project
+  install <skill...>   Install one or more skills into the current project
+  install --all        Install every skill
+  update <skill...>    Update installed skills to this version
+  update --all         Update every installed skill
   help                 Show help
 
 Options:
-  -g, --global         Use your personal Claude directory (init, install)
+  -a, --all            Every skill (install, update)
+  -f, --force          Update edited skills too, keeping a backup (update)
+  -g, --global         Use your personal Claude directory (init, install, update)
   -v, --version        Show version
   -h, --help           Show help
 
 Examples:
   npx cg-web-skills init
   npx cg-web-skills list
-  npx cg-web-skills install <skill>
+  npx cg-web-skills install --all
+  npx cg-web-skills install cg-web-designer cg-web-animate
+  npx cg-web-skills@latest update --all
 
 Documentation, issues, and source:
   ${REPOSITORY_URL}`;
-
-function readVersion() {
-  const manifest = JSON.parse(readFileSync(path.join(getPackageRoot(), 'package.json'), 'utf8'));
-  return manifest.version;
-}
 
 function printHelp() {
   if (canShowBanner(process.stdout)) {
@@ -102,7 +107,7 @@ async function main(argv) {
   const [commandName, ...args] = positionals;
 
   if (values.version) {
-    logger.info(readVersion());
+    logger.info(getPackageVersion());
     return ExitCode.SUCCESS;
   }
 
@@ -116,15 +121,21 @@ async function main(argv) {
   }
 
   const command = COMMANDS[commandName];
-  if (values.global && !command.supportsGlobal) {
-    return usageError(`The --global option is not supported by \`${commandName}\`.`);
+  for (const option of ['global', 'all', 'force']) {
+    if (values[option] && !command.options.includes(option)) {
+      return usageError(`The --${option} option is not supported by \`${commandName}\`.`);
+    }
   }
 
   return command.module.run(args, {
     cwd: process.cwd(),
     env: process.env,
     skillsDirectory: getSkillsDirectory(),
-    options: { global: Boolean(values.global) },
+    options: {
+      global: Boolean(values.global),
+      all: Boolean(values.all),
+      force: Boolean(values.force),
+    },
   });
 }
 

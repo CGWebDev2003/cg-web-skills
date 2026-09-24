@@ -10,6 +10,7 @@ import * as initCommand from '../src/commands/init.js';
 import * as installCommand from '../src/commands/install.js';
 import { discoverSkills, parseFrontmatter } from '../src/commands/list.js';
 import * as listCommand from '../src/commands/list.js';
+import * as updateCommand from '../src/commands/update.js';
 import { BANNER, BANNER_WIDTH, canShowBanner } from '../src/utils/banner.js';
 import { ExitCode } from '../src/utils/exit-codes.js';
 import {
@@ -137,7 +138,8 @@ describe('CLI startup', () => {
         'Options:',
         'init',
         'list',
-        'install <skill>',
+        'install <skill...>',
+        '--all',
         '--version',
         'https://github.com/CGWebDev2003/cg-web-skills',
       ]) {
@@ -268,9 +270,83 @@ describe('install', () => {
     assert.match(stdout, /Run `cg-web-skills list` to see available skills\./);
   });
 
-  it('requires exactly one skill name', async () => {
+  it('requires a skill name or --all, but not both', async () => {
     assert.equal((await runCli(['install'])).code, ExitCode.USAGE);
-    assert.equal((await runCli(['install', 'a', 'b'])).code, ExitCode.USAGE);
+    assert.equal((await runCli(['install', '--all', 'cg-web-animate'])).code, ExitCode.USAGE);
+  });
+
+  it('rejects --all for commands other than install', async () => {
+    const { code, stderr } = await runCli(['list', '--all']);
+    assert.equal(code, ExitCode.USAGE);
+    assert.match(stderr, /--all option is not supported by `list`/);
+  });
+
+  it('installs several skills at once', async () => {
+    const registry = await createRegistry({
+      'skill-one': { 'SKILL.md': 'one' },
+      'skill-two': { 'SKILL.md': 'two' },
+    });
+    const project = await tempDir('project');
+
+    const { code, stdout } = await runCommand(installCommand, ['skill-one', 'skill-two', 'skill-one'], {
+      cwd: project,
+      env: {},
+      skillsDirectory: registry,
+    });
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /Installed skill-one/);
+    assert.match(stdout, /Installed skill-two/);
+    const skills = path.join(project, '.claude', 'skills');
+    assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'one');
+    assert.equal(await fs.readFile(path.join(skills, 'skill-two', 'SKILL.md'), 'utf8'), 'two');
+  });
+
+  it('installs nothing when one of several skills does not exist', async () => {
+    const registry = await createRegistry({ 'skill-one': { 'SKILL.md': 'one' } });
+    const project = await tempDir('project');
+
+    const { code, stderr } = await runCommand(installCommand, ['skill-one', 'missing-skill'], {
+      cwd: project,
+      env: {},
+      skillsDirectory: registry,
+    });
+    assert.equal(code, ExitCode.ERROR);
+    assert.match(stderr, /Skill not found: missing-skill/);
+    assert.equal(await exists(path.join(project, '.claude', 'skills', 'skill-one')), false);
+  });
+
+  it('installs every skill with --all and skips installed ones on re-run', async () => {
+    const registry = await createRegistry({
+      'skill-one': { 'SKILL.md': '---\ndescription: One.\n---\n' },
+      'skill-two': { 'SKILL.md': '---\ndescription: Two.\n---\n' },
+      'not-a-skill': { 'README.md': 'no SKILL.md' },
+    });
+    const project = await tempDir('project');
+    const context = { cwd: project, env: {}, skillsDirectory: registry, options: { all: true } };
+    const skills = path.join(project, '.claude', 'skills');
+
+    await fs.mkdir(path.join(skills, 'skill-one'), { recursive: true });
+    await fs.writeFile(path.join(skills, 'skill-one', 'SKILL.md'), 'local edits');
+
+    const first = await runCommand(installCommand, [], context);
+    assert.equal(first.code, ExitCode.SUCCESS);
+    assert.match(first.stdout, /Skipped skill-one: already installed/);
+    assert.match(first.stdout, /Installed skill-two/);
+    assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'local edits');
+    assert.equal(await exists(path.join(skills, 'not-a-skill')), false);
+
+    const second = await runCommand(installCommand, [], context);
+    assert.equal(second.code, ExitCode.SUCCESS);
+    assert.match(second.stdout, /Skipped skill-two: already installed/);
+  });
+
+  it('installs every shipped skill with --all', async () => {
+    const project = await tempDir('project');
+    const { code } = await runCli(['install', '--all'], { cwd: project });
+    assert.equal(code, ExitCode.SUCCESS);
+    for (const { name } of await discoverSkills()) {
+      assert.equal(await exists(path.join(project, '.claude', 'skills', name, 'SKILL.md')), true);
+    }
   });
 
   for (const name of INVALID_NAMES) {
@@ -370,6 +446,177 @@ describe('install', () => {
     });
     assert.equal(code, ExitCode.ERROR);
     assert.match(stderr, /Skill not found: demo-skill/);
+  });
+});
+
+describe('update', () => {
+  /** Installs `files` as demo-skill at version 1.0.0, then changes the registry to `next`. */
+  async function installThenChange(files, next) {
+    const registry = await createRegistry({ 'demo-skill': files });
+    const project = await tempDir('project');
+    const context = { cwd: project, env: {}, skillsDirectory: registry };
+    const installed = await runCommand(installCommand, ['demo-skill'], { ...context, version: '1.0.0' });
+    assert.equal(installed.code, ExitCode.SUCCESS);
+
+    const source = path.join(registry, 'demo-skill');
+    await fs.rm(source, { recursive: true });
+    for (const [file, content] of Object.entries(next)) {
+      await fs.mkdir(path.dirname(path.join(source, file)), { recursive: true });
+      await fs.writeFile(path.join(source, file), content);
+    }
+    const destination = path.join(project, '.claude', 'skills', 'demo-skill');
+    return { project, destination, context: { ...context, version: '1.1.0' } };
+  }
+
+  it('requires a skill name or --all, but not both', async () => {
+    assert.equal((await runCli(['update'])).code, ExitCode.USAGE);
+    assert.equal((await runCli(['update', '--all', 'cg-web-animate'])).code, ExitCode.USAGE);
+    assert.equal((await runCli(['update', '--', '../escape'])).code, ExitCode.USAGE);
+  });
+
+  it('rejects --force for commands other than update', async () => {
+    const { code, stderr } = await runCli(['install', '--force', 'cg-web-animate']);
+    assert.equal(code, ExitCode.USAGE);
+    assert.match(stderr, /--force option is not supported by `install`/);
+  });
+
+  it('reports a skill that is not installed', async () => {
+    const { code, stderr } = await runCli(['update', 'cg-web-animate']);
+    assert.equal(code, ExitCode.ERROR);
+    assert.match(stderr, /Skill "cg-web-animate" is not installed/);
+  });
+
+  it('records installed skills in the lockfile', async () => {
+    const { project } = await installThenChange({ 'SKILL.md': 'v1' }, { 'SKILL.md': 'v1' });
+    const lockfile = JSON.parse(await fs.readFile(path.join(project, '.claude', 'cg-web-skills.json'), 'utf8'));
+    assert.equal(lockfile.skills['demo-skill'].version, '1.0.0');
+    assert.match(lockfile.skills['demo-skill'].hash, /^sha256-[0-9a-f]{64}$/);
+  });
+
+  it('replaces an unchanged skill with the new version', async () => {
+    const { project, destination, context } = await installThenChange(
+      { 'SKILL.md': 'v1', 'references/old.md': 'old' },
+      { 'SKILL.md': 'v2', 'references/new.md': 'new' },
+    );
+
+    const { code, stdout } = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /Updated demo-skill \(1\.0\.0 → 1\.1\.0\)/);
+    assert.equal(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8'), 'v2');
+    assert.equal(await fs.readFile(path.join(destination, 'references', 'new.md'), 'utf8'), 'new');
+    assert.equal(await exists(path.join(destination, 'references', 'old.md')), false);
+    assert.equal(await exists(path.join(project, '.claude', 'cg-web-skills-backups')), false);
+    assert.equal(await exists(path.join(project, '.claude', '.cg-web-skills-staging')), false);
+
+    const again = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(again.code, ExitCode.SUCCESS);
+    assert.match(again.stdout, /demo-skill is already up to date/);
+  });
+
+  it('keeps local changes unless --force is given, then backs them up', async () => {
+    const { project, destination, context } = await installThenChange({ 'SKILL.md': 'v1' }, { 'SKILL.md': 'v2' });
+    await fs.writeFile(path.join(destination, 'SKILL.md'), 'my edits');
+
+    const refused = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(refused.code, ExitCode.ERROR);
+    assert.match(refused.stderr, /has local changes/);
+    assert.match(refused.stdout, /--force/);
+    assert.equal(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8'), 'my edits');
+
+    const forced = await runCommand(updateCommand, ['demo-skill'], { ...context, options: { force: true } });
+    assert.equal(forced.code, ExitCode.SUCCESS);
+    assert.match(forced.stdout, /Previous version backed up to/);
+    assert.equal(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8'), 'v2');
+
+    const backups = path.join(project, '.claude', 'cg-web-skills-backups');
+    const [backup] = await fs.readdir(backups);
+    assert.match(backup, /^demo-skill-/);
+    assert.equal(await fs.readFile(path.join(backups, backup, 'SKILL.md'), 'utf8'), 'my edits');
+  });
+
+  it('treats a skill installed without a record as possibly edited', async () => {
+    const registry = await createRegistry({ 'demo-skill': { 'SKILL.md': 'v2' } });
+    const project = await tempDir('project');
+    const destination = path.join(project, '.claude', 'skills', 'demo-skill');
+    await fs.mkdir(destination, { recursive: true });
+    await fs.writeFile(path.join(destination, 'SKILL.md'), 'v1');
+    const context = { cwd: project, env: {}, skillsDirectory: registry, version: '1.1.0' };
+
+    const refused = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(refused.code, ExitCode.ERROR);
+    assert.match(refused.stderr, /local changes cannot be ruled out/);
+
+    const forced = await runCommand(updateCommand, ['demo-skill'], { ...context, options: { force: true } });
+    assert.equal(forced.code, ExitCode.SUCCESS);
+    assert.equal(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8'), 'v2');
+  });
+
+  it('treats CRLF line endings as unchanged', async () => {
+    const { destination, context } = await installThenChange({ 'SKILL.md': 'a\nb\n' }, { 'SKILL.md': 'a\nb\n' });
+    await fs.writeFile(path.join(destination, 'SKILL.md'), 'a\r\nb\r\n');
+
+    const { code, stdout } = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /already up to date/);
+  });
+
+  it('updates only installed skills from this package with --all', async () => {
+    const registry = await createRegistry({
+      'skill-one': { 'SKILL.md': 'one v1' },
+      'skill-two': { 'SKILL.md': 'two v1' },
+    });
+    const project = await tempDir('project');
+    const context = { cwd: project, env: {}, skillsDirectory: registry, version: '1.0.0' };
+    await runCommand(installCommand, ['skill-one'], context);
+
+    const skills = path.join(project, '.claude', 'skills');
+    await fs.mkdir(path.join(skills, 'someone-elses-skill'), { recursive: true });
+    await fs.writeFile(path.join(skills, 'someone-elses-skill', 'SKILL.md'), 'theirs');
+    await fs.writeFile(path.join(registry, 'skill-one', 'SKILL.md'), 'one v2');
+
+    const { code, stdout } = await runCommand(updateCommand, [], {
+      ...context,
+      version: '1.1.0',
+      options: { all: true },
+    });
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /Updated skill-one/);
+    assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'one v2');
+    assert.equal(await exists(path.join(skills, 'skill-two')), false);
+    assert.equal(await fs.readFile(path.join(skills, 'someone-elses-skill', 'SKILL.md'), 'utf8'), 'theirs');
+  });
+
+  it('reports when --all finds nothing to update', async () => {
+    const { code, stdout } = await runCli(['update', '--all']);
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /No CG Web Skills are installed here/);
+  });
+
+  it('updates skills in the personal Claude directory with --global', async () => {
+    const registry = await createRegistry({ 'demo-skill': { 'SKILL.md': 'v1' } });
+    const configDir = await tempDir('claude-config');
+    const context = {
+      cwd: await tempDir('project'),
+      env: { CLAUDE_CONFIG_DIR: configDir },
+      skillsDirectory: registry,
+      options: { global: true },
+    };
+    await runCommand(installCommand, ['demo-skill'], context);
+    await fs.writeFile(path.join(registry, 'demo-skill', 'SKILL.md'), 'v2');
+
+    const { code } = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.equal(await fs.readFile(path.join(configDir, 'skills', 'demo-skill', 'SKILL.md'), 'utf8'), 'v2');
+  });
+
+  it('ignores an unreadable lockfile instead of crashing', async () => {
+    const { project, destination, context } = await installThenChange({ 'SKILL.md': 'v1' }, { 'SKILL.md': 'v2' });
+    await fs.writeFile(path.join(project, '.claude', 'cg-web-skills.json'), '{ not json');
+
+    const { code, stderr } = await runCommand(updateCommand, ['demo-skill'], context);
+    assert.equal(code, ExitCode.ERROR);
+    assert.match(stderr, /Ignoring cg-web-skills\.json/);
+    assert.equal(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8'), 'v1');
   });
 });
 

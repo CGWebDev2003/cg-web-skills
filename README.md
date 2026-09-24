@@ -7,11 +7,10 @@ Professional web design and web motion expertise for Claude, packaged as install
 CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, and how to add motion that helps rather than distracts. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
-npx cg-web-skills install cg-web-designer
-npx cg-web-skills install cg-web-animate
+npx cg-web-skills install --all
 ```
 
-That's it. Open Claude Code in the same project and ask for what you need, for example _"Plan and build a website for my physiotherapy practice."_
+That's it: this installs the complete skillset into your project. Open Claude Code in the same project and ask for what you need, for example _"Plan and build a website for my physiotherapy practice."_
 
 ---
 
@@ -121,11 +120,17 @@ When both are installed, `cg-web-designer` leads the project and treats motion a
    npx cg-web-skills list
    ```
 
-3. **Install the skills you want.**
+3. **Install the skills.** Install the complete skillset:
+
+   ```bash
+   npx cg-web-skills install --all
+   ```
+
+   Or pick individual skills:
 
    ```bash
    npx cg-web-skills install cg-web-designer
-   npx cg-web-skills install cg-web-animate
+   npx cg-web-skills install cg-web-designer cg-web-animate
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -135,7 +140,7 @@ When both are installed, `cg-web-designer` leads the project and treats motion a
 Prefer to have the skills in every project? Install them globally instead:
 
 ```bash
-npx cg-web-skills install cg-web-designer --global
+npx cg-web-skills install --all --global
 ```
 
 ## Using the skills in Claude
@@ -150,7 +155,7 @@ npx cg-web-skills install cg-web-designer --global
 
 ## CLI reference
 
-The CLI is a small, dependency-free Node.js tool. Its only job is to copy skill folders into the right place, so Claude can find them.
+The CLI is a small, dependency-free Node.js tool. Its job is to copy skill folders into the right place, so Claude can find them, and to keep them up to date.
 
 You can run it without installing anything:
 
@@ -170,10 +175,15 @@ cg-web-skills <command>
 | Command / option  | Description |
 | ----------------- | ----------- |
 | `list`            | Lists every skill shipped in the package, with a short description. |
-| `install <skill>` | Copies `skills/<skill>/` into `.claude/skills/<skill>/` in the current project. Creates `.claude/skills/` if needed. |
+| `install <skill...>` | Copies each named skill from `skills/<skill>/` into `.claude/skills/<skill>/` in the current project. Creates `.claude/skills/` if needed. If any name is unknown, nothing is installed. |
+| `install --all`   | Installs every skill in the skillset. Skills that are already installed are skipped, so you can re-run it after an update to add new skills. |
+| `update <skill...>` | Replaces the named installed skills with the version in this package. Skills with local changes are left alone unless you add `--force`. |
+| `update --all`    | Updates every installed CG Web Skill. Skills that are not installed are left alone. |
 | `init`            | Creates `.claude/skills/` in the current project without installing anything. Optional, and safe to re-run. |
 | `help`            | Shows help. |
-| `-g, --global`    | For `install` and `init`: use your personal Claude directory instead of the project. |
+| `-a, --all`       | For `install` and `update`: every skill. |
+| `-f, --force`     | For `update`: also update skills with local changes. The current version is backed up first. |
+| `-g, --global`    | For `install`, `update`, and `init`: use your personal Claude directory instead of the project. |
 | `-v, --version`   | Shows the version. |
 | `-h, --help`      | Shows help. |
 
@@ -197,10 +207,19 @@ Available skills:
   cg-web-animate   Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
   cg-web-designer  Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
 
-Install a skill with `cg-web-skills install <skill>`.
+Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
 
-$ npx cg-web-skills install cg-web-designer
+$ npx cg-web-skills install --all
+✔ Installed cg-web-animate to .claude/skills/cg-web-animate
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
+
+$ npx cg-web-skills install --all
+- Skipped cg-web-animate: already installed at .claude/skills/cg-web-animate
+- Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
+
+$ npx cg-web-skills@latest update --all
+✔ Updated cg-web-animate (1.1.0 → 1.2.0)
+- cg-web-designer is already up to date
 
 $ npx cg-web-skills install cg-web-designer
 ✖ Skill "cg-web-designer" is already installed at .claude/skills/cg-web-designer
@@ -211,7 +230,7 @@ Remove the existing directory first if you want to reinstall it.
 ### Safety
 
 - The CLI only copies files. Skill contents are treated as data and are never executed or modified.
-- It never overwrites an existing installation.
+- `install` never overwrites an existing installation. `update` replaces a skill only when it has no local changes, or with `--force` after moving the current version to a backup. The new version is copied first and swapped in afterwards, so a failed update never leaves a half-copied skill.
 - Skill names must be lowercase kebab-case. Anything else, including `..`, path separators, and absolute paths, is rejected, so a name can never write outside the skills directory.
 - Skills containing symlinks or other special files are refused.
 
@@ -238,17 +257,36 @@ Claude Code discovers every skill in the plugin's `skills/` directory. New skill
 
 ## Updating and removing skills
 
-Installed skills are plain folders, so managing them is a matter of files:
+### Update
 
-- **Remove:** delete `.claude/skills/<skill>/` (or `~/.claude/skills/<skill>/` for a global install).
-- **Update:** remove the folder, then install again with the latest version:
+Update every installed skill to the latest version:
 
-  ```bash
-  rm -rf .claude/skills/cg-web-designer
-  npx cg-web-skills@latest install cg-web-designer
-  ```
+```bash
+npx cg-web-skills@latest update --all
+```
 
-The CLI never overwrites an existing skill, so local changes you made to a skill are never lost by accident.
+Or update individual skills with `npx cg-web-skills@latest update cg-web-designer`. Use `@latest`, otherwise `npx` may run an older cached version of the CLI.
+
+`update` protects your own edits:
+
+- When you install a skill, the CLI records a fingerprint of it in `.claude/cg-web-skills.json`.
+- On `update`, a skill that still matches its fingerprint is replaced with the new version.
+- A skill you edited is **not** changed. The CLI tells you which skills have local changes and stops. Run the command again with `--force` to update them anyway; the edited version is moved to `.claude/cg-web-skills-backups/` first, so you can copy your changes over.
+- Skills installed before version 1.1.0, or copied by hand, have no fingerprint. If they differ from the new version, they need `--force` once, since the CLI cannot tell your edits from an older version.
+
+You can commit `.claude/cg-web-skills.json` together with `.claude/skills/`. You probably want to add `.claude/cg-web-skills-backups/` to your `.gitignore`.
+
+### Add new skills
+
+```bash
+npx cg-web-skills@latest install --all
+```
+
+Skills you already have are skipped; new ones are installed.
+
+### Remove
+
+Delete `.claude/skills/<skill>/` (or `~/.claude/skills/<skill>/` for a global install).
 
 ## FAQ
 
@@ -256,13 +294,13 @@ The CLI never overwrites an existing skill, so local changes you made to a skill
 No. The CLI is a convenience. You can copy any folder from [`skills/`](skills/) into `.claude/skills/` yourself, or load the repository as a plugin.
 
 **Does installing a skill change my project?**
-Only by adding a folder under `.claude/skills/`. Nothing else is touched, and nothing is executed.
+Only by adding a folder under `.claude/skills/` and recording it in `.claude/cg-web-skills.json`. Nothing else is touched, and nothing is executed.
 
 **Can I customize a skill?**
-Yes. After installing, the skill is a normal Markdown file in your project. Edit `SKILL.md` to match your team's conventions.
+Yes. After installing, the skill is a normal Markdown file in your project. Edit `SKILL.md` to match your team's conventions. `update` won't overwrite your edits without `--force`, and keeps a backup when you use it.
 
 **Will more skills be added?**
-Yes. The skillset grows over time. New skills show up in `cg-web-skills list` and in the plugin automatically.
+Yes. The skillset grows over time. New skills show up in `cg-web-skills list` and in the plugin automatically, and `install --all` picks them up.
 
 ---
 
@@ -274,8 +312,8 @@ cg-web-skills/
 ├── skills/                      Skills registry (one folder per skill)
 ├── src/
 │   ├── cli.js                   Entry point and argument parsing
-│   ├── commands/                init, install, list
-│   └── utils/                   logger, paths, exit codes
+│   ├── commands/                init, install, list, update
+│   └── utils/                   logger, paths, skill files, lockfile, banner
 └── tests/                       Node.js built-in test runner
 ```
 
