@@ -18,6 +18,11 @@ export function info(message = '') {
   process.stdout.write(`${message}\n`);
 }
 
+/** Writes `message` to stdout in the accent color (used for the banner). */
+export function accent(message) {
+  process.stdout.write(`${paint(process.stdout, 36, message)}\n`);
+}
+
 export function success(message) {
   process.stdout.write(`${paint(process.stdout, 32, '✔')} ${message}\n`);
 }

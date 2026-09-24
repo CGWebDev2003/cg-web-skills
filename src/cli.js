@@ -19,6 +19,7 @@ import { parseArgs } from 'node:util';
 import * as init from './commands/init.js';
 import * as install from './commands/install.js';
 import * as list from './commands/list.js';
+import { BANNER, canShowBanner } from './utils/banner.js';
 import { ExitCode } from './utils/exit-codes.js';
 import * as logger from './utils/logger.js';
 import { getPackageRoot, getSkillsDirectory } from './utils/paths.js';
@@ -35,9 +36,9 @@ const OPTIONS = {
   version: { type: 'boolean', short: 'v' },
 };
 
-const HELP = `CG Web Skills
+const TITLE = 'CG Web Skills';
 
-A professional Claude skillset for designing, building, and
+const HELP = `A professional Claude skillset for designing, building, and
 optimizing modern, high-quality websites.
 
 Usage:
@@ -62,6 +63,17 @@ Examples:
 function readVersion() {
   const manifest = JSON.parse(readFileSync(path.join(getPackageRoot(), 'package.json'), 'utf8'));
   return manifest.version;
+}
+
+function printHelp() {
+  if (canShowBanner(process.stdout)) {
+    logger.info();
+    logger.accent(BANNER);
+  } else {
+    logger.info(TITLE);
+  }
+  logger.info();
+  logger.info(HELP);
 }
 
 function usageError(message) {
@@ -91,7 +103,7 @@ async function main(argv) {
   }
 
   if (values.help || commandName === undefined || commandName === 'help') {
-    logger.info(HELP);
+    printHelp();
     return ExitCode.SUCCESS;
   }
 

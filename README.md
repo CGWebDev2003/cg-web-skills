@@ -177,6 +177,8 @@ cg-web-skills <command>
 | `-v, --version`   | Shows the version. |
 | `-h, --help`      | Shows help. |
 
+Running `cg-web-skills` without a command (or with `--help`) shows the help. In a terminal at least 94 columns wide it opens with the CG Web Skills banner; in narrower terminals and when the output is piped, it prints a plain title instead.
+
 ### Where skills are installed
 
 | Scope | Directory | Available in |
