@@ -72,7 +72,7 @@ export async function run(
   // Check every source before copying anything, so a typo installs nothing.
   const sources = new Map(names.map((name) => [name, getSkillPath(name, skillsDirectory)]));
   for (const [name, source] of sources) {
-    const problem = await checkSource(name, source);
+    const problem = await checkSource(name, source, version);
     if (problem) {
       logger.error(problem.message);
       logger.info();

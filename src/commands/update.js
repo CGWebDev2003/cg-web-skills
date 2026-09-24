@@ -3,7 +3,7 @@
  *
  * Replaces installed skills with the version shipped in this package. With
  * `--all`, every installed skill from this package is updated; skills that
- * are not installed are left alone (use `install` for those).
+ * are not installed are left alone (use `install` for those), but listed.
  *
  * A skill is only replaced when it is unchanged since the CLI installed it,
  * as recorded in the lockfile. A skill with local edits, or one installed
@@ -97,16 +97,21 @@ export async function run(
   const claudeDirectory = getClaudeDirectory({ scope, cwd, env });
   const targetRoot = getClaudeSkillsDirectory({ scope, cwd, env });
 
+  // Spell out `@latest`: a plain `npx cg-web-skills` may run an older cached CLI.
+  const installCommand = `npx cg-web-skills@latest install --all${options.global ? ' --global' : ''}`;
+
   let names;
+  const notInstalled = [];
   if (options.all) {
     if (args.length > 0) return usageError('Use either skill names or --all, not both.');
     names = [];
     for (const { name } of await discoverSkills(skillsDirectory)) {
       if (await isInstalled(resolveSkillDirectory(targetRoot, name))) names.push(name);
+      else notInstalled.push(name);
     }
     if (names.length === 0) {
       logger.info('No CG Web Skills are installed here.');
-      logger.info('Install them with `cg-web-skills install --all`.');
+      logger.info(`Install them with \`${installCommand}\`.`);
       return ExitCode.SUCCESS;
     }
   } else {
@@ -125,7 +130,7 @@ export async function run(
   // Check everything before changing anything.
   const sources = new Map(names.map((name) => [name, getSkillPath(name, skillsDirectory)]));
   for (const [name, source] of sources) {
-    const problem = await checkSource(name, source);
+    const problem = await checkSource(name, source, version);
     if (problem) {
       logger.error(problem.message);
       logger.info();
@@ -175,6 +180,13 @@ export async function run(
     const from = previous?.version && previous.version !== version ? ` (${previous.version} → ${version})` : '';
     logger.success(`Updated ${name}${from}`);
     if (backup) logger.info(`  Previous version backed up to ${formatPath(backup, cwd)}`);
+  }
+
+  // `update` never installs new skills, so point out the ones still missing.
+  if (notInstalled.length > 0) {
+    logger.info();
+    logger.info(`Not installed yet: ${notInstalled.join(', ')}`);
+    logger.info(`Install them with \`${installCommand}\`.`);
   }
 
   if (blocked) {

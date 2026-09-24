@@ -11,7 +11,7 @@ Professional web design, motion, SEO, GEO, and accessibility expertise for Claud
 CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, and how to make it accessible to everyone. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
-npx cg-web-skills install --all
+npx cg-web-skills@latest install --all
 ```
 
 That's it: this installs the complete skillset into your project. Open Claude Code in the same project and ask for what you need, for example _"Plan and build a website for my physiotherapy practice."_
@@ -190,21 +190,21 @@ When several are installed, `cg-web-designer` leads the project and hands the sp
 2. **See which skills are available.**
 
    ```bash
-   npx cg-web-skills list
+   npx cg-web-skills@latest list
    ```
 
 3. **Install the skills.** Install the complete skillset:
 
    ```bash
-   npx cg-web-skills install --all
+   npx cg-web-skills@latest install --all
    ```
 
    Or pick individual skills:
 
    ```bash
-   npx cg-web-skills install cg-web-designer
-   npx cg-web-skills install cg-web-designer cg-web-animate
-   npx cg-web-skills install cg-web-seo cg-web-geo cg-web-accessibility
+   npx cg-web-skills@latest install cg-web-designer
+   npx cg-web-skills@latest install cg-web-designer cg-web-animate
+   npx cg-web-skills@latest install cg-web-seo cg-web-geo cg-web-accessibility
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -214,7 +214,7 @@ When several are installed, `cg-web-designer` leads the project and hands the sp
 Prefer to have the skills in every project? Install them globally instead:
 
 ```bash
-npx cg-web-skills install --all --global
+npx cg-web-skills@latest install --all --global
 ```
 
 ## Using the skills in Claude
@@ -234,7 +234,7 @@ The CLI is a small, dependency-free Node.js tool. Its job is to copy skill folde
 You can run it without installing anything:
 
 ```bash
-npx cg-web-skills <command>
+npx cg-web-skills@latest <command>
 ```
 
 Or install it globally and call it directly:
@@ -252,7 +252,7 @@ cg-web-skills <command>
 | `install <skill...>` | Copies each named skill from `skills/<skill>/` into `.claude/skills/<skill>/` in the current project. Creates `.claude/skills/` if needed. If any name is unknown, nothing is installed. |
 | `install --all`   | Installs every skill in the skillset. Skills that are already installed are skipped, so you can re-run it after an update to add new skills. |
 | `update <skill...>` | Replaces the named installed skills with the version in this package. Skills with local changes are left alone unless you add `--force`. |
-| `update --all`    | Updates every installed CG Web Skill. Skills that are not installed are left alone. |
+| `update --all`    | Updates every installed CG Web Skill. Skills that are not installed are left alone, but listed, so you can add them with `install --all`. |
 | `init`            | Creates `.claude/skills/` in the current project without installing anything. Optional, and safe to re-run. |
 | `help`            | Shows help. |
 | `-a, --all`       | For `install` and `update`: every skill. |
@@ -275,7 +275,7 @@ With `--global`, the personal Claude directory is `$CLAUDE_CONFIG_DIR` when that
 ### What a session looks like
 
 ```console
-$ npx cg-web-skills list
+$ npx cg-web-skills@latest list
 Available skills:
 
   cg-web-accessibility  Implementiert und remediatiert Website-Barrierefreiheit direkt im bestehenden Codebase. Erstellt ei…
@@ -286,14 +286,14 @@ Available skills:
 
 Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
 
-$ npx cg-web-skills install --all
+$ npx cg-web-skills@latest install --all
 ✔ Installed cg-web-accessibility to .claude/skills/cg-web-accessibility
 ✔ Installed cg-web-animate to .claude/skills/cg-web-animate
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
 ✔ Installed cg-web-geo to .claude/skills/cg-web-geo
 ✔ Installed cg-web-seo to .claude/skills/cg-web-seo
 
-$ npx cg-web-skills install --all
+$ npx cg-web-skills@latest install --all
 - Skipped cg-web-accessibility: already installed at .claude/skills/cg-web-accessibility
 - Skipped cg-web-animate: already installed at .claude/skills/cg-web-animate
 - Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
@@ -304,7 +304,7 @@ $ npx cg-web-skills@latest update --all
 ✔ Updated cg-web-animate (1.1.0 → 1.2.0)
 - cg-web-designer is already up to date
 
-$ npx cg-web-skills install cg-web-designer
+$ npx cg-web-skills@latest install cg-web-designer
 ✖ Skill "cg-web-designer" is already installed at .claude/skills/cg-web-designer
 
 Remove the existing directory first if you want to reinstall it.
@@ -365,7 +365,7 @@ You can commit `.claude/cg-web-skills.json` together with `.claude/skills/`. You
 npx cg-web-skills@latest install --all
 ```
 
-Skills you already have are skipped; new ones are installed.
+Skills you already have are skipped; new ones are installed. `update --all` does not install new skills, but it lists the ones you don't have yet.
 
 ### Remove
 
@@ -381,6 +381,15 @@ Only by adding a folder under `.claude/skills/` and recording it in `.claude/cg-
 
 **Can I customize a skill?**
 Yes. After installing, the skill is a normal Markdown file in your project. Edit `SKILL.md` to match your team's conventions. `update` won't overwrite your edits without `--force`, and keeps a backup when you use it.
+
+**`install` says "Skill not found" for a skill that is listed here, or `install --all` skips the new skills. Why?**
+`npx` is running an older, cached version of the CLI that predates those skills. `npx cg-web-skills` reuses whatever version it downloaded first, while `npx cg-web-skills@latest` always checks for the newest release. Run the command with `@latest`:
+
+```bash
+npx cg-web-skills@latest install --all
+```
+
+If you installed the CLI globally, update it with `npm install --global cg-web-skills@latest`. `cg-web-skills --version` shows which version you are running.
 
 **Will more skills be added?**
 Yes. The skillset grows over time. New skills show up in `cg-web-skills list` and in the plugin automatically, and `install --all` picks them up.
