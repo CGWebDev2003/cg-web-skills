@@ -110,7 +110,7 @@ export async function run(_args, { skillsDirectory = getSkillsDirectory() } = {}
     logger.info(`  ${name.padEnd(width)}  ${summary}`.trimEnd());
   }
   logger.info();
-  logger.info('Install a skill with `cg-web-skills install <skill>`.');
+  logger.info('Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.');
 
   return ExitCode.SUCCESS;
 }

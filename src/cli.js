@@ -25,12 +25,13 @@ import * as logger from './utils/logger.js';
 import { getPackageRoot, getSkillsDirectory } from './utils/paths.js';
 
 const COMMANDS = {
-  init: { module: init, supportsGlobal: true },
-  list: { module: list, supportsGlobal: false },
-  install: { module: install, supportsGlobal: true },
+  init: { module: init, supportsGlobal: true, supportsAll: false },
+  list: { module: list, supportsGlobal: false, supportsAll: false },
+  install: { module: install, supportsGlobal: true, supportsAll: true },
 };
 
 const OPTIONS = {
+  all: { type: 'boolean', short: 'a' },
   global: { type: 'boolean', short: 'g' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
@@ -48,10 +49,12 @@ Usage:
 Commands:
   init                 Initialize CG Web Skills in the current project
   list                 List available skills
-  install <skill>      Install a skill into the current project
+  install <skill...>   Install one or more skills into the current project
+  install --all        Install every skill
   help                 Show help
 
 Options:
+  -a, --all            Install every skill (install)
   -g, --global         Use your personal Claude directory (init, install)
   -v, --version        Show version
   -h, --help           Show help
@@ -59,7 +62,8 @@ Options:
 Examples:
   npx cg-web-skills init
   npx cg-web-skills list
-  npx cg-web-skills install <skill>
+  npx cg-web-skills install --all
+  npx cg-web-skills install cg-web-designer cg-web-animate
 
 Documentation, issues, and source:
   ${REPOSITORY_URL}`;
@@ -119,12 +123,15 @@ async function main(argv) {
   if (values.global && !command.supportsGlobal) {
     return usageError(`The --global option is not supported by \`${commandName}\`.`);
   }
+  if (values.all && !command.supportsAll) {
+    return usageError(`The --all option is not supported by \`${commandName}\`.`);
+  }
 
   return command.module.run(args, {
     cwd: process.cwd(),
     env: process.env,
     skillsDirectory: getSkillsDirectory(),
-    options: { global: Boolean(values.global) },
+    options: { global: Boolean(values.global), all: Boolean(values.all) },
   });
 }
 

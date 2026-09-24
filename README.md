@@ -7,11 +7,10 @@ Professional web design and web motion expertise for Claude, packaged as install
 CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, and how to add motion that helps rather than distracts. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
-npx cg-web-skills install cg-web-designer
-npx cg-web-skills install cg-web-animate
+npx cg-web-skills install --all
 ```
 
-That's it. Open Claude Code in the same project and ask for what you need, for example _"Plan and build a website for my physiotherapy practice."_
+That's it: this installs the complete skillset into your project. Open Claude Code in the same project and ask for what you need, for example _"Plan and build a website for my physiotherapy practice."_
 
 ---
 
@@ -121,11 +120,17 @@ When both are installed, `cg-web-designer` leads the project and treats motion a
    npx cg-web-skills list
    ```
 
-3. **Install the skills you want.**
+3. **Install the skills.** Install the complete skillset:
+
+   ```bash
+   npx cg-web-skills install --all
+   ```
+
+   Or pick individual skills:
 
    ```bash
    npx cg-web-skills install cg-web-designer
-   npx cg-web-skills install cg-web-animate
+   npx cg-web-skills install cg-web-designer cg-web-animate
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -135,7 +140,7 @@ When both are installed, `cg-web-designer` leads the project and treats motion a
 Prefer to have the skills in every project? Install them globally instead:
 
 ```bash
-npx cg-web-skills install cg-web-designer --global
+npx cg-web-skills install --all --global
 ```
 
 ## Using the skills in Claude
@@ -170,9 +175,11 @@ cg-web-skills <command>
 | Command / option  | Description |
 | ----------------- | ----------- |
 | `list`            | Lists every skill shipped in the package, with a short description. |
-| `install <skill>` | Copies `skills/<skill>/` into `.claude/skills/<skill>/` in the current project. Creates `.claude/skills/` if needed. |
+| `install <skill...>` | Copies each named skill from `skills/<skill>/` into `.claude/skills/<skill>/` in the current project. Creates `.claude/skills/` if needed. If any name is unknown, nothing is installed. |
+| `install --all`   | Installs every skill in the skillset. Skills that are already installed are skipped, so you can re-run it after an update to add new skills. |
 | `init`            | Creates `.claude/skills/` in the current project without installing anything. Optional, and safe to re-run. |
 | `help`            | Shows help. |
+| `-a, --all`       | For `install`: install every skill. |
 | `-g, --global`    | For `install` and `init`: use your personal Claude directory instead of the project. |
 | `-v, --version`   | Shows the version. |
 | `-h, --help`      | Shows help. |
@@ -197,10 +204,15 @@ Available skills:
   cg-web-animate   Expert skill for designing, implementing, reviewing, and optimizing premium web animations and moti…
   cg-web-designer  Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
 
-Install a skill with `cg-web-skills install <skill>`.
+Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
 
-$ npx cg-web-skills install cg-web-designer
+$ npx cg-web-skills install --all
+✔ Installed cg-web-animate to .claude/skills/cg-web-animate
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
+
+$ npx cg-web-skills install --all
+- Skipped cg-web-animate: already installed at .claude/skills/cg-web-animate
+- Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
 
 $ npx cg-web-skills install cg-web-designer
 ✖ Skill "cg-web-designer" is already installed at .claude/skills/cg-web-designer
@@ -248,6 +260,8 @@ Installed skills are plain folders, so managing them is a matter of files:
   npx cg-web-skills@latest install cg-web-designer
   ```
 
+- **Add new skills:** run `npx cg-web-skills@latest install --all`. Skills you already have are skipped; new ones are installed.
+
 The CLI never overwrites an existing skill, so local changes you made to a skill are never lost by accident.
 
 ## FAQ
@@ -262,7 +276,7 @@ Only by adding a folder under `.claude/skills/`. Nothing else is touched, and no
 Yes. After installing, the skill is a normal Markdown file in your project. Edit `SKILL.md` to match your team's conventions.
 
 **Will more skills be added?**
-Yes. The skillset grows over time. New skills show up in `cg-web-skills list` and in the plugin automatically.
+Yes. The skillset grows over time. New skills show up in `cg-web-skills list` and in the plugin automatically, and `install --all` picks them up.
 
 ---
 

@@ -1,9 +1,10 @@
 /**
- * `cg-web-skills install <skill>`
+ * `cg-web-skills install <skill...>` and `cg-web-skills install --all`
  *
  * Copies `skills/<skill>/` verbatim into the Claude skills directory:
  * `<project>/.claude/skills/<skill>/` by default, or the personal
- * `~/.claude/skills/<skill>/` with `--global`.
+ * `~/.claude/skills/<skill>/` with `--global`. With `--all`, every skill in
+ * the registry is installed.
  *
  * Skill content is treated strictly as data: files are copied, never
  * executed or modified. Existing installations are never overwritten.
@@ -12,6 +13,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { discoverSkills } from './list.js';
 import { ExitCode } from '../utils/exit-codes.js';
 import * as logger from '../utils/logger.js';
 import {
@@ -61,73 +63,45 @@ async function findUnsupportedEntry(directory) {
   return null;
 }
 
-export async function run(
-  args,
-  {
-    cwd = process.cwd(),
-    env = process.env,
-    skillsDirectory = getSkillsDirectory(),
-    options = {},
-  } = {},
-) {
-  if (args.length !== 1) {
-    logger.error(args.length === 0 ? 'Missing skill name.' : 'Too many arguments.');
-    logger.info();
-    logger.info('Usage: cg-web-skills install <skill>');
-    return ExitCode.USAGE;
-  }
+const USAGE = 'Usage: cg-web-skills install <skill...>\n       cg-web-skills install --all';
 
-  const [name] = args;
+function usageError(message) {
+  logger.error(message);
+  logger.info();
+  logger.info(USAGE);
+  return ExitCode.USAGE;
+}
 
-  // 1. Validate the skill name (rejects `..`, separators, absolute paths).
-  if (!isValidSkillName(name)) {
-    logger.error(`Invalid skill name: ${name}`);
-    logger.info();
-    logger.info('Skill names use lowercase kebab-case, for example `web-design`.');
-    return ExitCode.USAGE;
-  }
-
-  // 2–3. Resolve the source directory and verify the skill exists.
-  const source = getSkillPath(name, skillsDirectory);
-  if (!(await skillExists(source))) {
-    logger.error(`Skill not found: ${name}`);
-    logger.info();
-    logger.info('Run `cg-web-skills list` to see available skills.');
-    return ExitCode.ERROR;
-  }
+/**
+ * Checks that the skill exists in the registry and contains only regular
+ * files and directories. Returns an error message, or null when it is valid.
+ */
+async function checkSource(name, source) {
+  if (!(await skillExists(source))) return `Skill not found: ${name}`;
 
   const unsupported = await findUnsupportedEntry(source);
   if (unsupported) {
-    logger.error(`Skill "${name}" contains an unsupported entry: ${path.relative(source, unsupported)}`);
-    logger.info('Skills may only contain regular files and directories.');
-    return ExitCode.ERROR;
+    return `Skill "${name}" contains an unsupported entry: ${path.relative(source, unsupported)}`;
   }
+  return null;
+}
 
-  // 4. Determine the Claude skills installation directory.
-  const scope = options.global ? 'user' : 'project';
-  const targetRoot = getClaudeSkillsDirectory({ scope, cwd, env });
-  const destination = resolveSkillDirectory(targetRoot, name);
+/** Copies one skill. Returns true when it was installed, false when it already exists. */
+async function installSkill(source, destination) {
+  // Never overwrite an existing installation.
+  if (await lstatOrNull(destination)) return false;
 
-  // 7. Never overwrite an existing installation.
-  if (await lstatOrNull(destination)) {
-    logger.error(`Skill "${name}" is already installed at ${formatPath(destination, cwd)}`);
-    logger.info();
-    logger.info('Remove the existing directory first if you want to reinstall it.');
-    return ExitCode.ERROR;
-  }
-
-  // 5. Create the destination. The non-recursive mkdir of the skill directory
-  // fails if something appeared since the check above, so nothing is replaced.
-  await fs.mkdir(targetRoot, { recursive: true });
+  // The non-recursive mkdir of the skill directory fails if something appeared
+  // since the check above, so nothing is replaced.
+  await fs.mkdir(path.dirname(destination), { recursive: true });
   try {
     await fs.mkdir(destination);
   } catch (err) {
-    if (err.code !== 'EEXIST') throw err;
-    logger.error(`Skill "${name}" is already installed at ${formatPath(destination, cwd)}`);
-    return ExitCode.ERROR;
+    if (err.code === 'EEXIST') return false;
+    throw err;
   }
 
-  // 6. Copy the complete skill directory without modifying its contents.
+  // Copy the complete skill directory without modifying its contents.
   try {
     for (const entry of await fs.readdir(source)) {
       await fs.cp(path.join(source, entry), path.join(destination, entry), {
@@ -142,7 +116,80 @@ export async function run(
     await fs.rm(destination, { recursive: true, force: true });
     throw err;
   }
+  return true;
+}
 
-  logger.success(`Installed ${name} to ${formatPath(destination, cwd)}`);
+export async function run(
+  args,
+  {
+    cwd = process.cwd(),
+    env = process.env,
+    skillsDirectory = getSkillsDirectory(),
+    options = {},
+  } = {},
+) {
+  let names;
+  if (options.all) {
+    if (args.length > 0) return usageError('Use either skill names or --all, not both.');
+    names = (await discoverSkills(skillsDirectory)).map((skill) => skill.name);
+    if (names.length === 0) {
+      logger.info('No skills are currently available.');
+      return ExitCode.SUCCESS;
+    }
+  } else {
+    if (args.length === 0) return usageError('Missing skill name.');
+    names = [...new Set(args)];
+
+    // Validate every name first (rejects `..`, separators, absolute paths).
+    const invalid = names.find((name) => !isValidSkillName(name));
+    if (invalid !== undefined) {
+      logger.error(`Invalid skill name: ${invalid}`);
+      logger.info();
+      logger.info('Skill names use lowercase kebab-case, for example `web-design`.');
+      return ExitCode.USAGE;
+    }
+  }
+
+  // Check every source before copying anything, so a typo installs nothing.
+  const sources = new Map(names.map((name) => [name, getSkillPath(name, skillsDirectory)]));
+  for (const [name, source] of sources) {
+    const problem = await checkSource(name, source);
+    if (problem) {
+      logger.error(problem);
+      logger.info();
+      logger.info(
+        problem.startsWith('Skill not found')
+          ? 'Run `cg-web-skills list` to see available skills.'
+          : 'Skills may only contain regular files and directories.',
+      );
+      return ExitCode.ERROR;
+    }
+  }
+
+  const scope = options.global ? 'user' : 'project';
+  const targetRoot = getClaudeSkillsDirectory({ scope, cwd, env });
+
+  // With --all, existing skills are skipped so the command can be re-run to
+  // pick up new skills. Naming an installed skill explicitly is an error.
+  let conflict = false;
+  for (const [name, source] of sources) {
+    const destination = resolveSkillDirectory(targetRoot, name);
+    const displayPath = formatPath(destination, cwd);
+
+    if (await installSkill(source, destination)) {
+      logger.success(`Installed ${name} to ${displayPath}`);
+    } else if (options.all) {
+      logger.info(`- Skipped ${name}: already installed at ${displayPath}`);
+    } else {
+      logger.error(`Skill "${name}" is already installed at ${displayPath}`);
+      conflict = true;
+    }
+  }
+
+  if (conflict) {
+    logger.info();
+    logger.info('Remove the existing directory first if you want to reinstall it.');
+    return ExitCode.ERROR;
+  }
   return ExitCode.SUCCESS;
 }

@@ -59,6 +59,7 @@ export async function run(_args, { cwd = process.cwd(), env = process.env, optio
   logger.info('Next steps:');
   logger.info('  cg-web-skills list              List available skills');
   logger.info('  cg-web-skills install <skill>   Install a skill');
+  logger.info('  cg-web-skills install --all     Install every skill');
 
   return ExitCode.SUCCESS;
 }

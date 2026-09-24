@@ -137,7 +137,8 @@ describe('CLI startup', () => {
         'Options:',
         'init',
         'list',
-        'install <skill>',
+        'install <skill...>',
+        '--all',
         '--version',
         'https://github.com/CGWebDev2003/cg-web-skills',
       ]) {
@@ -268,9 +269,83 @@ describe('install', () => {
     assert.match(stdout, /Run `cg-web-skills list` to see available skills\./);
   });
 
-  it('requires exactly one skill name', async () => {
+  it('requires a skill name or --all, but not both', async () => {
     assert.equal((await runCli(['install'])).code, ExitCode.USAGE);
-    assert.equal((await runCli(['install', 'a', 'b'])).code, ExitCode.USAGE);
+    assert.equal((await runCli(['install', '--all', 'cg-web-animate'])).code, ExitCode.USAGE);
+  });
+
+  it('rejects --all for commands other than install', async () => {
+    const { code, stderr } = await runCli(['list', '--all']);
+    assert.equal(code, ExitCode.USAGE);
+    assert.match(stderr, /--all option is not supported by `list`/);
+  });
+
+  it('installs several skills at once', async () => {
+    const registry = await createRegistry({
+      'skill-one': { 'SKILL.md': 'one' },
+      'skill-two': { 'SKILL.md': 'two' },
+    });
+    const project = await tempDir('project');
+
+    const { code, stdout } = await runCommand(installCommand, ['skill-one', 'skill-two', 'skill-one'], {
+      cwd: project,
+      env: {},
+      skillsDirectory: registry,
+    });
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /Installed skill-one/);
+    assert.match(stdout, /Installed skill-two/);
+    const skills = path.join(project, '.claude', 'skills');
+    assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'one');
+    assert.equal(await fs.readFile(path.join(skills, 'skill-two', 'SKILL.md'), 'utf8'), 'two');
+  });
+
+  it('installs nothing when one of several skills does not exist', async () => {
+    const registry = await createRegistry({ 'skill-one': { 'SKILL.md': 'one' } });
+    const project = await tempDir('project');
+
+    const { code, stderr } = await runCommand(installCommand, ['skill-one', 'missing-skill'], {
+      cwd: project,
+      env: {},
+      skillsDirectory: registry,
+    });
+    assert.equal(code, ExitCode.ERROR);
+    assert.match(stderr, /Skill not found: missing-skill/);
+    assert.equal(await exists(path.join(project, '.claude', 'skills', 'skill-one')), false);
+  });
+
+  it('installs every skill with --all and skips installed ones on re-run', async () => {
+    const registry = await createRegistry({
+      'skill-one': { 'SKILL.md': '---\ndescription: One.\n---\n' },
+      'skill-two': { 'SKILL.md': '---\ndescription: Two.\n---\n' },
+      'not-a-skill': { 'README.md': 'no SKILL.md' },
+    });
+    const project = await tempDir('project');
+    const context = { cwd: project, env: {}, skillsDirectory: registry, options: { all: true } };
+    const skills = path.join(project, '.claude', 'skills');
+
+    await fs.mkdir(path.join(skills, 'skill-one'), { recursive: true });
+    await fs.writeFile(path.join(skills, 'skill-one', 'SKILL.md'), 'local edits');
+
+    const first = await runCommand(installCommand, [], context);
+    assert.equal(first.code, ExitCode.SUCCESS);
+    assert.match(first.stdout, /Skipped skill-one: already installed/);
+    assert.match(first.stdout, /Installed skill-two/);
+    assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'local edits');
+    assert.equal(await exists(path.join(skills, 'not-a-skill')), false);
+
+    const second = await runCommand(installCommand, [], context);
+    assert.equal(second.code, ExitCode.SUCCESS);
+    assert.match(second.stdout, /Skipped skill-two: already installed/);
+  });
+
+  it('installs every shipped skill with --all', async () => {
+    const project = await tempDir('project');
+    const { code } = await runCli(['install', '--all'], { cwd: project });
+    assert.equal(code, ExitCode.SUCCESS);
+    for (const { name } of await discoverSkills()) {
+      assert.equal(await exists(path.join(project, '.claude', 'skills', name, 'SKILL.md')), true);
+    }
   });
 
   for (const name of INVALID_NAMES) {
