@@ -174,6 +174,11 @@ describe('CLI startup', () => {
     assert.equal(code, ExitCode.SUCCESS);
   });
 
+  it('keeps the plugin manifest version in sync with package.json', async () => {
+    const plugin = JSON.parse(await fs.readFile(path.join(ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
+    assert.equal(plugin.version, version);
+  });
+
   it('rejects an unknown command with exit code 2', async () => {
     const { code, stdout, stderr } = await runCli(['deploy']);
     assert.equal(code, ExitCode.USAGE);
