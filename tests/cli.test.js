@@ -164,8 +164,16 @@ describe('CLI startup', () => {
 });
 
 describe('list', () => {
-  it('reports gracefully that no skills are available yet', async () => {
+  it('lists the skills shipped in the registry', async () => {
     const { code, stdout } = await runCli(['list']);
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.match(stdout, /Available skills:/);
+    assert.match(stdout, /cg-web-animate\s+Expert skill for designing/);
+  });
+
+  it('reports gracefully when no skills are available', async () => {
+    const registry = await tempDir('empty-registry');
+    const { code, stdout } = await runCommand(listCommand, [], { skillsDirectory: registry });
     assert.equal(code, ExitCode.SUCCESS);
     assert.match(stdout, /No skills are currently available\./);
   });
@@ -377,6 +385,39 @@ describe('init', () => {
     assert.equal(code, ExitCode.SUCCESS);
     assert.ok((await fs.stat(path.join(configDir, 'skills'))).isDirectory());
     assert.equal(await exists(path.join(project, '.claude')), false);
+  });
+});
+
+describe('skills registry', () => {
+  it('contains only valid skills', async () => {
+    const entries = await fs.readdir(getSkillsDirectory(), { withFileTypes: true });
+    const directories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+    const skills = await discoverSkills();
+
+    assert.ok(skills.length > 0, 'the registry should contain at least one skill');
+    assert.deepEqual(
+      skills.map((skill) => skill.name),
+      [...directories].sort((a, b) => a.localeCompare(b)),
+      'every directory in skills/ must be a valid skill',
+    );
+
+    for (const skill of skills) {
+      const content = await fs.readFile(path.join(skill.path, 'SKILL.md'), 'utf8');
+      const metadata = parseFrontmatter(content);
+      assert.equal(metadata.name, skill.name, `${skill.name}: frontmatter name must match its directory`);
+      assert.ok(metadata.description, `${skill.name}: description is required`);
+      assert.ok(metadata.description.length <= 1024, `${skill.name}: description exceeds 1024 characters`);
+    }
+  });
+
+  it('installs a shipped skill verbatim', async () => {
+    const [skill] = await discoverSkills();
+    const project = await tempDir('project');
+    const { code } = await runCli(['install', skill.name], { cwd: project });
+    assert.equal(code, ExitCode.SUCCESS);
+
+    const installed = path.join(project, '.claude', 'skills', skill.name, 'SKILL.md');
+    assert.deepEqual(await fs.readFile(installed), await fs.readFile(path.join(skill.path, 'SKILL.md')));
   });
 });
 

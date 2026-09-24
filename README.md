@@ -4,7 +4,7 @@ A professional Claude skillset for designing, building, and optimizing modern, h
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> **Status:** early foundation (`0.1.0`). This release sets up the infrastructure: the Claude Plugin, the skills registry, the CLI, and npm distribution. The individual skills will be added in upcoming releases.
+> **Status:** early release. The infrastructure (Claude Plugin, skills registry, CLI, npm distribution) is in place, and the first skill, `cg-web-animate`, is available. More skills will be added progressively.
 
 ## What is CG Web Skills?
 
@@ -114,6 +114,16 @@ skills/
 
 See [`skills/README.md`](skills/README.md) for the conventions.
 
+### Available skills
+
+| Skill | Description |
+| ----- | ----------- |
+| [`cg-web-animate`](skills/cg-web-animate/SKILL.md) | Premium web motion: designing, implementing, reviewing, and optimizing animations and motion systems with purposeful motion, natural easing, accessibility, and performance. |
+
+```bash
+npx cg-web-skills install cg-web-animate
+```
+
 ## Development
 
 ```bash
@@ -132,7 +142,7 @@ npm pack --dry-run
 
 ## Status
 
-This initial release establishes the infrastructure only. No skills are included yet; `cg-web-skills list` reports that none are available. Individual skills will be added progressively, and each one will appear in the CLI and the Claude Plugin automatically.
+The infrastructure is complete and the first skill, `cg-web-animate`, is included. Further skills will be added progressively, and each one will appear in the CLI and the Claude Plugin automatically.
 
 CG Web Skills is an independent open-source project. It is not affiliated with Anthropic and is not listed in any official Claude marketplace.
 
