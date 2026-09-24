@@ -269,6 +269,8 @@ describe('install', () => {
     assert.equal(code, ExitCode.ERROR);
     assert.match(stderr, /Skill not found: web-design/);
     assert.match(stdout, /Run `cg-web-skills list` to see available skills\./);
+    assert.ok(stdout.includes(`This is cg-web-skills ${version}.`));
+    assert.match(stdout, /npx cg-web-skills@latest/);
   });
 
   it('requires a skill name or --all, but not both', async () => {
@@ -585,6 +587,18 @@ describe('update', () => {
     assert.equal(await fs.readFile(path.join(skills, 'skill-one', 'SKILL.md'), 'utf8'), 'one v2');
     assert.equal(await exists(path.join(skills, 'skill-two')), false);
     assert.equal(await fs.readFile(path.join(skills, 'someone-elses-skill', 'SKILL.md'), 'utf8'), 'theirs');
+    assert.match(stdout, /Not installed yet: skill-two\n/);
+    assert.match(stdout, /Install them with `npx cg-web-skills@latest install --all`\./);
+  });
+
+  it('does not list missing skills when every skill is installed', async () => {
+    const registry = await createRegistry({ 'skill-one': { 'SKILL.md': 'one' } });
+    const context = { cwd: await tempDir('project'), env: {}, skillsDirectory: registry, version: '1.0.0' };
+    await runCommand(installCommand, [], { ...context, options: { all: true } });
+
+    const { code, stdout } = await runCommand(updateCommand, [], { ...context, options: { all: true } });
+    assert.equal(code, ExitCode.SUCCESS);
+    assert.doesNotMatch(stdout, /Not installed yet/);
   });
 
   it('reports when --all finds nothing to update', async () => {

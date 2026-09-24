@@ -51,10 +51,16 @@ export async function findUnsupportedEntry(directory) {
 /**
  * Checks that a registry skill exists and contains only regular files and
  * directories. Returns `{ message, hint }` describing the problem, or null.
+ * `version` is the running CLI version, mentioned when the skill is missing.
  */
-export async function checkSource(name, source) {
+export async function checkSource(name, source, version) {
   if (!(await skillExists(source))) {
-    return { message: `Skill not found: ${name}`, hint: 'Run `cg-web-skills list` to see available skills.' };
+    // `npx cg-web-skills` can run an older cached CLI that predates the skill.
+    const hint = ['Run `cg-web-skills list` to see available skills.'];
+    if (version) {
+      hint.push(`This is cg-web-skills ${version}. For skills added in newer versions, use \`npx cg-web-skills@latest\`.`);
+    }
+    return { message: `Skill not found: ${name}`, hint: hint.join('\n') };
   }
 
   const unsupported = await findUnsupportedEntry(source);

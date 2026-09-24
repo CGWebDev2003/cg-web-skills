@@ -66,10 +66,10 @@ Options:
   -h, --help           Show help
 
 Examples:
-  npx cg-web-skills init
-  npx cg-web-skills list
-  npx cg-web-skills install --all
-  npx cg-web-skills install cg-web-designer cg-web-animate
+  npx cg-web-skills@latest init
+  npx cg-web-skills@latest list
+  npx cg-web-skills@latest install --all
+  npx cg-web-skills@latest install cg-web-designer cg-web-animate
   npx cg-web-skills@latest update --all
 
 Website:
