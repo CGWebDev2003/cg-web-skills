@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# Build and coverage output
+coverage/
+dist/
+*.tgz
+
+# OS files
+.DS_Store

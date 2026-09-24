@@ -1,0 +1,20 @@
+# The published package must include:
+#   src/             CLI
+#   skills/          Skills registry (including every skills/**/SKILL.md)
+#   .claude-plugin/  Plugin manifest
+#   package.json, README.md, LICENSE
+
+# Development
+tests/
+coverage/
+.github/
+.claude/
+*.tgz
+
+# Logs and environment
+npm-debug.log*
+.env
+.env.*
+
+# OS files
+.DS_Store

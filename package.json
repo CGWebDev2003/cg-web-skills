@@ -1,0 +1,38 @@
+{
+  "name": "cg-web-skills",
+  "version": "0.1.0",
+  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-plugin",
+    "agent-skills",
+    "skills",
+    "web-design",
+    "frontend",
+    "ux",
+    "accessibility",
+    "seo",
+    "performance"
+  ],
+  "homepage": "https://github.com/CGWebDev2003/cg-web-skills#readme",
+  "bugs": {
+    "url": "https://github.com/CGWebDev2003/cg-web-skills/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CGWebDev2003/cg-web-skills.git"
+  },
+  "license": "MIT",
+  "author": "Colin Grahm",
+  "type": "module",
+  "bin": {
+    "cg-web-skills": "src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

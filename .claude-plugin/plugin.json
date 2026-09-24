@@ -1,0 +1,12 @@
+{
+  "name": "cg-web-skills",
+  "version": "0.1.0",
+  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites.",
+  "author": {
+    "name": "Colin Grahm"
+  },
+  "homepage": "https://github.com/CGWebDev2003/cg-web-skills",
+  "repository": "https://github.com/CGWebDev2003/cg-web-skills",
+  "license": "MIT",
+  "keywords": ["web-design", "frontend", "ux", "ui-design", "accessibility", "seo", "performance"]
+}
