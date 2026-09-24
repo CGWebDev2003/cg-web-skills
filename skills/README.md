@@ -10,6 +10,9 @@ Available skills:
 
 - [`cg-web-designer`](cg-web-designer/SKILL.md): end-to-end web design process, from intake and strategy to QA and launch
 - [`cg-web-animate`](cg-web-animate/SKILL.md): premium web animation and motion systems
+- [`cg-web-seo`](cg-web-seo/SKILL.md): technical SEO, search intent, content, structured data, and audits
+- [`cg-web-geo`](cg-web-geo/SKILL.md): Generative Engine Optimization for AI search and answer systems
+- [`cg-web-accessibility`](cg-web-accessibility/SKILL.md): WCAG 2.2 AA remediation and a native accessibility toolbar
 
 ## Structure
 
@@ -47,8 +50,6 @@ ux-design
 frontend
 animation
 performance
-seo
-accessibility
 conversion
 ```
 
