@@ -1,3 +1,5 @@
+![CG Web Skills website](assets/website_screenshot.png)
+
 # CG Web Skills
 
 Professional web design and web motion expertise for Claude, packaged as installable Agent Skills.

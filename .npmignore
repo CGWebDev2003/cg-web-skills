@@ -6,6 +6,8 @@
 
 # Development
 tests/
+assets/
+CLAUDE.md
 coverage/
 .github/
 .claude/
