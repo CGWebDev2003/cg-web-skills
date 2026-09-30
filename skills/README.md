@@ -15,6 +15,8 @@ Available skills:
 - [`cg-web-accessibility`](cg-web-accessibility/SKILL.md): WCAG 2.2 AA remediation and a native accessibility toolbar
 - [`cg-web-deslopifier`](cg-web-deslopifier/SKILL.md): audits and redesigns AI-generated or template-driven websites for specificity and authorship
 - [`cg-web-lighthouse-optimizer`](cg-web-lighthouse-optimizer/SKILL.md): turns Lighthouse JSON reports for mobile and desktop into fixes in the code
+- [`cg-web-privacy`](cg-web-privacy/SKILL.md): privacy policies (GDPR, TDDDG) written from the site's real data flows, kept in sync with the consent banner
+- [`cg-web-imprint`](cg-web-imprint/SKILL.md): imprints (§ 5 DDG) for German websites, including regulated professions and special regimes
 
 ## Structure
 
