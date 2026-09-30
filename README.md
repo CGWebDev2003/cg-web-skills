@@ -2,13 +2,13 @@
 
 # CG Web Skills
 
-Professional web design, motion, SEO, GEO, accessibility, and performance expertise for Claude, packaged as installable Agent Skills.
+Professional web design, motion, SEO, GEO, accessibility, performance, and legal-page expertise for Claude, packaged as installable Agent Skills.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Website:** [cg-web-skills-website.vercel.app](https://cg-web-skills-website.vercel.app/en)
 
-CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, how to make it accessible to everyone, and how to make it fast. You install the skills once, and Claude uses them automatically whenever you work on a website.
+CG Web Skills gives Claude the working methods of a senior web studio: how to plan a website before designing it, how to make it look specific instead of generic, how to add motion that helps rather than distracts, how to make it findable in classic and AI-powered search, how to make it accessible to everyone, how to make it fast, and how to write a privacy policy and imprint that match what the site actually does. You install the skills once, and Claude uses them automatically whenever you work on a website.
 
 ```bash
 npx cg-web-skills@latest install --all
@@ -29,6 +29,8 @@ That's it: this installs the complete skillset into your project. Open Claude Co
   - [`cg-web-accessibility`](#cg-web-accessibility)
   - [`cg-web-deslopifier`](#cg-web-deslopifier)
   - [`cg-web-lighthouse-optimizer`](#cg-web-lighthouse-optimizer)
+  - [`cg-web-privacy`](#cg-web-privacy)
+  - [`cg-web-imprint`](#cg-web-imprint)
   - [How the skills work together](#how-the-skills-work-together)
 - [Quick start](#quick-start)
 - [Using the skills in Claude](#using-the-skills-in-claude)
@@ -58,8 +60,10 @@ In practice, that means you don't have to paste long prompts about accessibility
 | [`cg-web-accessibility`](skills/cg-web-accessibility/SKILL.md) | Accessibility engineer | Fixing WCAG 2.2 AA barriers in the codebase and building a native, site-wide accessibility toolbar |
 | [`cg-web-deslopifier`](skills/cg-web-deslopifier/SKILL.md) | Design director for existing sites | Auditing and redesigning AI-generated, vibe-coded, or template-driven websites so they look specific and intentionally designed |
 | [`cg-web-lighthouse-optimizer`](skills/cg-web-lighthouse-optimizer/SKILL.md) | Web performance engineer | Turning Lighthouse JSON reports (mobile and desktop) into real fixes in the code, without score gaming |
+| [`cg-web-privacy`](skills/cg-web-privacy/SKILL.md) | Privacy and website compliance specialist (Germany/EU) | Auditing, writing, and updating privacy policies (GDPR, TDDDG) from the services, cookies, and data flows the site really uses, and keeping the consent banner in sync |
+| [`cg-web-imprint`](skills/cg-web-imprint/SKILL.md) | Imprint specialist (Germany) | Auditing, writing, and updating the imprint (§ 5 DDG), including regulated professions, editorial content, consumer dispute resolution, and its placement on the site |
 
-`cg-web-seo`, `cg-web-geo`, `cg-web-accessibility`, and `cg-web-lighthouse-optimizer` are written in German. Claude applies them just as well to projects in any language.
+`cg-web-seo`, `cg-web-geo`, `cg-web-accessibility`, `cg-web-lighthouse-optimizer`, `cg-web-privacy`, and `cg-web-imprint` are written in German. Claude applies them just as well to projects in any language.
 
 ### `cg-web-designer`
 
@@ -215,11 +219,55 @@ The performance skill. You give Claude Lighthouse results as JSON, and it fixes 
 - _"Analyze this PageSpeed Insights JSON and improve the site in the repo."_
 - _"The new Lighthouse run is worse than last week. Compare the reports and fix the regression."_
 
+### `cg-web-privacy`
+
+The privacy policy skill for websites in Germany and the EU. Its core rule: **analyze the website first, then write the privacy policy.** Claude doesn't produce a generic template. It writes the policy from the services, cookies, scripts, and data flows the site really uses, and keeps the policy, the consent banner, and the code consistent with each other.
+
+**What Claude does with it**
+
+- **Researches the current law first.** Before any legal statement, Claude checks primary sources (EUR-Lex, gesetze-im-internet.de), the German data protection authorities (DSK), the EDPB, relevant case law, and the providers' own documentation, and dates its sources.
+- **Inventories the site technically:** pages, forms, cookies, local and session storage, fonts, embeds, maps, videos, analytics, pixels, captchas, consent management, hosting, CDN, email, server-side API routes, and AI services. In a Next.js project it also checks whether a third party receives data only on the server.
+- **Builds a data inventory** with purpose, legal basis, recipients, third-country transfers, retention, and a status for each processing (`verified`, `from the user`, `likely`, `unclear`). Only verified or confirmed facts go into the final text.
+- **Assigns legal bases one by one** (Art. 6 GDPR) and names the concrete legitimate interest instead of a blanket phrase. It checks Art. 9, 13, 14, and 22 GDPR where they apply.
+- **Keeps § 25 TDDDG and the GDPR apart:** access to the device and the processing that follows are separate questions. No cookie banner just because "cookies exist", and nothing that needs consent loads before consent.
+- **Checks consent banner, code, and policy against each other** in all four directions, and verifies each provider's current transfer basis, for example the EU-US Data Privacy Framework.
+- **Asks instead of guessing.** Missing facts such as the controller, a data protection officer, the hosting provider, or retention periods are asked for in a compact table. It never invents providers, legal bases, or retention periods, and never calls anything "GDPR-compliant" across the board.
+
+**Example prompts**
+
+- _"Write the privacy policy for this website."_
+- _"Check our privacy policy against what the site actually loads."_
+- _"Does our cookie banner match the privacy policy? Are scripts blocked before consent?"_
+- _"We added Google Maps and a newsletter. Update the privacy policy."_
+
+### `cg-web-imprint`
+
+The imprint skill for websites and digital services in Germany. Its core rule: **analyze the website, identify the operator, then write the imprint.** Claude determines the legal form, business model, industry, and any special rules before it writes a line, instead of filling in a template.
+
+**What Claude does with it**
+
+- **Starts from the site and the code:** existing legal pages, footer, company data in components and the CMS, shop and blog areas, social profiles, and any hints of registers, chambers, licenses, or supervisory authorities.
+- **Covers the general duties of § 5 DDG:** name and address for service of process, legal form and representatives, direct electronic contact, register details, supervisory authority, VAT ID or business ID (never the personal tax ID), and liquidation status.
+- **Detects regulated professions and special regimes automatically:** doctors and other health professions, lawyers, notaries, tax advisors, auditors, architects and engineers, brokers and intermediaries under the GewO, experts, and associations or companies. For each it checks the professional title, chamber, professional rules, and professional liability insurance.
+- **Checks editorial content** (§ 18 (2) MStV), the DL-InfoV, consumer dispute resolution under the VSBG, and, for marketplaces, the Digital Services Act.
+- **Removes outdated content:** references to the TMG or RStV, and links to the EU online dispute resolution platform, which was shut down on 20 July 2025.
+- **Implements it cleanly:** a dedicated `/impressum` route, a permanent footer link, reachable without JavaScript, login, or consent, and consistent across language versions.
+- **Never invents a fact.** No made-up register numbers, VAT IDs, managing directors, chambers, or insurers, no disclaimer boilerplate, and no promise of being "safe from cease-and-desist letters". What's missing is asked for.
+
+**Example prompts**
+
+- _"Create the imprint for this website."_
+- _"Audit our imprint. Is anything missing or outdated?"_
+- _"I'm a tax advisor. What has to go in my imprint?"_
+- _"We have a blog with editorial content. Do we need a responsible person under the MStV?"_
+
+Both skills are working aids, not legal advice. They document open questions and point out where a case needs an individual legal review.
+
 ### How the skills work together
 
 The skills are independent. Install only the ones you need, or all of them.
 
-When several are installed, `cg-web-designer` leads the project and hands the specialist work to the others: `cg-web-animate` supplies the motion craft, `cg-web-seo` the search foundation, `cg-web-geo` the AI search perspective on top of it, and `cg-web-accessibility` the WCAG remediation and the accessibility toolbar. For sites that already exist, `cg-web-deslopifier` takes generic, AI-looking design back to specific, intentional design, and `cg-web-lighthouse-optimizer` turns Lighthouse reports into performance fixes. You don't need to call them explicitly; Claude picks whichever fits the task.
+When several are installed, `cg-web-designer` leads the project and hands the specialist work to the others: `cg-web-animate` supplies the motion craft, `cg-web-seo` the search foundation, `cg-web-geo` the AI search perspective on top of it, and `cg-web-accessibility` the WCAG remediation and the accessibility toolbar. For sites that already exist, `cg-web-deslopifier` takes generic, AI-looking design back to specific, intentional design, and `cg-web-lighthouse-optimizer` turns Lighthouse reports into performance fixes. `cg-web-privacy` and `cg-web-imprint` write the legal pages from what the site actually does and who actually runs it. You don't need to call them explicitly; Claude picks whichever fits the task.
 
 ---
 
@@ -252,6 +300,7 @@ When several are installed, `cg-web-designer` leads the project and hands the sp
    npx cg-web-skills@latest install cg-web-designer cg-web-animate
    npx cg-web-skills@latest install cg-web-seo cg-web-geo cg-web-accessibility
    npx cg-web-skills@latest install cg-web-deslopifier cg-web-lighthouse-optimizer
+   npx cg-web-skills@latest install cg-web-privacy cg-web-imprint
    ```
 
    The skills are copied to `.claude/skills/` in your project. Commit that folder to share the skills with your team.
@@ -266,9 +315,9 @@ npx cg-web-skills@latest install --all --global
 
 ## Using the skills in Claude
 
-**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, a scroll animation, an SEO audit, AI search visibility, an accessibility fix, removing the "AI look" from a site, or a Lighthouse report to fix is enough.
+**Automatically.** Just describe your task. Claude matches it against each skill's description and loads the skill when it fits. Asking for a website, a redesign, a landing page review, a hover effect, a scroll animation, an SEO audit, AI search visibility, an accessibility fix, removing the "AI look" from a site, a Lighthouse report to fix, a privacy policy, or an imprint is enough.
 
-**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer`, `/cg-web-animate`, `/cg-web-seo`, `/cg-web-geo`, `/cg-web-accessibility`, `/cg-web-deslopifier`, or `/cg-web-lighthouse-optimizer` to invoke one directly, or simply mention the skill by name in your prompt.
+**Explicitly.** In Claude Code, skills are also available as slash commands. Type `/cg-web-designer`, `/cg-web-animate`, `/cg-web-seo`, `/cg-web-geo`, `/cg-web-accessibility`, `/cg-web-deslopifier`, `/cg-web-lighthouse-optimizer`, `/cg-web-privacy`, or `/cg-web-imprint` to invoke one directly, or simply mention the skill by name in your prompt.
 
 **Checking that it works.** Ask Claude _"Which skills do you have available?"_ in the project. The installed CG Web Skills should be listed.
 
@@ -330,7 +379,9 @@ Available skills:
   cg-web-designer              Lead web designer, UX strategist, content strategist, and frontend quality lead for professional we…
   cg-web-deslopifier           This skill should be used when the user asks to "remove AI slop", "deslopify a website", "make an A…
   cg-web-geo                   Vollumfänglicher Claude Skill für Generative Engine Optimization (GEO) von Websites. Analysiert und…
+  cg-web-imprint               Prüft, erstellt und aktualisiert Impressum bzw. Anbieterkennzeichnung für deutschsprachige Websites…
   cg-web-lighthouse-optimizer  Analysiert Lighthouse-JSON-Ergebnisse für Mobile und Desktop, normalisiert versionsabhängige Audit-…
+  cg-web-privacy               Prüft, erstellt und aktualisiert Datenschutzerklärungen und datenschutzrelevante Website-Implementi…
   cg-web-seo                   Vollumfänglicher SEO-Skill für professionelle Websites. Verwende ihn bei Website-Planung, Relaunche…
 
 Install a skill with `cg-web-skills install <skill>`, or all of them with `--all`.
@@ -341,7 +392,9 @@ $ npx cg-web-skills@latest install --all
 ✔ Installed cg-web-designer to .claude/skills/cg-web-designer
 ✔ Installed cg-web-deslopifier to .claude/skills/cg-web-deslopifier
 ✔ Installed cg-web-geo to .claude/skills/cg-web-geo
+✔ Installed cg-web-imprint to .claude/skills/cg-web-imprint
 ✔ Installed cg-web-lighthouse-optimizer to .claude/skills/cg-web-lighthouse-optimizer
+✔ Installed cg-web-privacy to .claude/skills/cg-web-privacy
 ✔ Installed cg-web-seo to .claude/skills/cg-web-seo
 
 $ npx cg-web-skills@latest install --all
@@ -350,7 +403,9 @@ $ npx cg-web-skills@latest install --all
 - Skipped cg-web-designer: already installed at .claude/skills/cg-web-designer
 - Skipped cg-web-deslopifier: already installed at .claude/skills/cg-web-deslopifier
 - Skipped cg-web-geo: already installed at .claude/skills/cg-web-geo
+- Skipped cg-web-imprint: already installed at .claude/skills/cg-web-imprint
 - Skipped cg-web-lighthouse-optimizer: already installed at .claude/skills/cg-web-lighthouse-optimizer
+- Skipped cg-web-privacy: already installed at .claude/skills/cg-web-privacy
 - Skipped cg-web-seo: already installed at .claude/skills/cg-web-seo
 
 $ npx cg-web-skills@latest update --all
