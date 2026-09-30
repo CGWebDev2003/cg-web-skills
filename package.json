@@ -1,7 +1,7 @@
 {
   "name": "cg-web-skills",
-  "version": "1.3.0",
-  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites: design, motion, SEO, GEO, accessibility, and performance.",
+  "version": "1.4.0",
+  "description": "A professional Claude skillset for designing, building, and optimizing modern, high-quality websites: design, motion, SEO, GEO, accessibility, performance, and legal pages.",
   "keywords": [
     "claude",
     "claude-code",
@@ -18,7 +18,12 @@
     "ai-search",
     "performance",
     "lighthouse",
-    "core-web-vitals"
+    "core-web-vitals",
+    "privacy",
+    "gdpr",
+    "dsgvo",
+    "imprint",
+    "impressum"
   ],
   "homepage": "https://cg-web-skills-website.vercel.app/en",
   "bugs": {
