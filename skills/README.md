@@ -8,7 +8,7 @@ This directory is the registry for every CG Web Skill. It is shared by the Claud
 
 Available skills:
 
-- [`cg-web-designer`](cg-web-designer/SKILL.md): end-to-end web design process, from intake and strategy to QA and launch
+- [`cg-web-designer`](cg-web-designer/SKILL.md): end-to-end web design process, from intake and strategy to QA and launch, with reference files for typography, color, layout, details, motion, states, and reviews
 - [`cg-web-animate`](cg-web-animate/SKILL.md): premium web animation and motion systems
 - [`cg-web-seo`](cg-web-seo/SKILL.md): technical SEO, search intent, content, structured data, and audits
 - [`cg-web-geo`](cg-web-geo/SKILL.md): Generative Engine Optimization for AI search and answer systems
@@ -39,7 +39,7 @@ skills/
     └── assets/        Templates, images, and other files
 ```
 
-Only create these folders when the skill actually uses them.
+Only create these folders when the skill actually uses them. `cg-web-designer` is an example of a skill with a `references/` folder: its `SKILL.md` routes the task and links the reference files Claude loads on demand.
 
 ## Naming
 
