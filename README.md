@@ -81,12 +81,16 @@ The end-to-end web design skill. It treats every request like a small studio eng
   ```
 
 - **Designs content first.** Structure and copy come before visual composition, so the layout serves the message.
-- **Builds a design system.** Tokens for color, type, spacing, and components, so the site stays consistent as it grows.
+- **Derives the look from your world.** Instead of picking a style, Claude names the look your industry always ships and builds the visual direction from your audience's own culture, materials, and artifacts. It suggests one committed direction plus alternatives.
+- **Gets the details right.** Concentric radii, optical alignment, themed focus rings and text selection, tabular numbers, icon stroke weights, hit areas, opens that are slower than closes, and every UI state from loading to error.
+- **Builds a design system.** Tokens for color, type, spacing, elevation, and motion, recorded in `PRODUCT.md` (product facts) and `DESIGN.md` (the visual system), so later work starts from the truth.
+- **Reviews with real scores.** A critique scores the 10 Nielsen heuristics and cognitive load, a technical audit scores five dimensions with P0–P3 findings, and a polish review lists before/after fixes with a verdict.
+- **Speaks a shared vocabulary.** Ask it to make a section _bolder_, _quieter_, or _simpler_, to _polish_ a page, or to _harden_ a form, and it knows what to change and what to leave alone.
 - **Covers the quality basics:** responsive design, accessibility (WCAG 2.2), performance (Core Web Vitals), SEO, QA, launch checklist, and handoff.
-- **Audits against "AI slop".** Claude checks the result against the generic defaults of AI-generated websites (interchangeable hero sections, decorative gradients, filler cards, and so on) and removes them.
+- **Audits against "AI slop".** Claude checks the result against the generic defaults of AI-generated websites (eyebrow labels on every heading, gradient text, interchangeable hero sections, filler cards, and so on) and removes them.
 - **Never invents facts.** Prices, testimonials, statistics, certifications, team members, and legal text are never made up. Unknowns are marked and asked for.
 
-It also handles redesigns of existing sites and has a defined fallback when you say _"just build it"_.
+It also handles redesigns of existing sites and has a defined fallback when you say _"just build it"_. The skill is split into a short `SKILL.md` and focused reference files that Claude reads only when a task needs them.
 
 **Example prompts**
 
@@ -94,6 +98,8 @@ It also handles redesigns of existing sites and has a defined fallback when you 
 - _"Redesign this landing page. It feels generic."_
 - _"Review my homepage for accessibility, performance, and SEO before launch."_
 - _"Create a design system for this project."_
+- _"Critique the pricing page and score it."_
+- _"The services section feels flat. Make it bolder without touching the rest."_
 
 ### `cg-web-animate`
 
